@@ -5,11 +5,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
@@ -30,11 +30,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jaredrummler.android.colorpicker.ColorPickerDialog;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+import com.jaredrummler.android.colorpicker.ColorShape;
 
 import org.l3ger0j.simpledimpledraw.databinding.ActivityMainBinding;
 
@@ -46,7 +48,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity implements ColorPickerDialogListener, SeekBar.OnSeekBarChangeListener {
 
     SimpleDimpleDrawingView simpleDimpleDrawingView;
     FloatingActionButton floatingActionButton;
@@ -55,8 +57,8 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     AlertDialog alertDialog;
     TextView textView;
     PopupWindow popupWindow;
-    static SharedPreferences preferences;
 
+    Bitmap bmMyView = SimpleDimpleDrawingView.getCanvasBitmap();
     int id;
     int turnOnMove;
     int[] posPopupWindow = new int[2];
@@ -73,18 +75,16 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         binding.navigationToolbar.setOnItemReselectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.appBarSave) {
-                openCaptureDialog();
+                openCaptureMenu();
             } else if (itemId == R.id.appBarClear) {
                 clearCanvas();
             } else if (itemId == R.id.appBarColor) {
-                createColorSettingsDialog();
+                showColorSettingMenu(bottomNavigationView);
             } else if (itemId == R.id.appBarShapes) {
                 alertDialog = DialogScreenFabric.getAlertDialog(this , DialogScreenFabric.ShapeSelect);
-                assert alertDialog != null;
                 alertDialog.show();
             } else if (itemId == R.id.appBarAbout) {
                 alertDialog = DialogScreenFabric.getAlertDialog(this , DialogScreenFabric.MainMenu);
-                assert alertDialog != null;
                 alertDialog.show();
             }
         });
@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
             floatingActionButton.setRippleColor(color);
             simpleDimpleDrawingView.id = 0;
-
             showMinSettingDrawWindow();
         });
 
@@ -134,16 +133,26 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         }
     }
 
+    // region picSave
+    private void openCaptureMenu() {
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = layoutInflater.inflate(R.layout.popup_capture_menu, null);
+        popupWindow = new PopupWindow(popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.showAsDropDown(bottomNavigationView.findViewById(R.id.appBarSave), 0, -370);
+
+        popupView.findViewById(R.id.saveCanvas).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCaptureDialog();
+            }
+        });
+
+        popupView.findViewById(R.id.shareCanvas).setEnabled(false);
+    }
+
     private void openCaptureDialog() {
-        /*
-         * Save in file
-         * String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
-         * FileOutputStream outputStream;
-         * File file = new File(extStorageDirectory, "test.jpg");
-         */
-
-        Bitmap bmMyView = SimpleDimpleDrawingView.getCanvasBitmap();
-
         try {
             File extStorage = this.getAppExternalFilesDir( );
 
@@ -166,38 +175,44 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         }
 
         Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_LONG).show();
-
-        AlertDialog.Builder captureDialog = new AlertDialog.Builder(MainActivity.this);
-        captureDialog.setTitle("Canvas captured");
-
-        ImageView bmImage = new ImageView(MainActivity.this);
-
-        bmImage.setImageBitmap(bmMyView);
-
-        LayoutParams bmImageLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        bmImage.setLayoutParams(bmImageLayoutParams);
-
-        LinearLayout dialogLayout = new LinearLayout(MainActivity.this);
-        dialogLayout.setOrientation(LinearLayout.VERTICAL);
-        dialogLayout.addView(bmImage);
-        captureDialog.setView(dialogLayout);
-
-        captureDialog.setPositiveButton("OK", null);
-        captureDialog.show();
+        alertDialog = DialogScreenFabric.getAlertDialog(this , 4);
+        alertDialog.show();
     }
+    // endregion
 
     // ClearCanvas
     private void clearCanvas() {
-        try {
-            simpleDimpleDrawingView.drawCanvas.drawColor(preferences.getInt("color_background", 0));
-            simpleDimpleDrawingView.specialPath.reset();
-        } catch (NullPointerException exception) {
-            simpleDimpleDrawingView.drawCanvas.drawColor(Color.WHITE);
-            simpleDimpleDrawingView.specialPath.reset();
-        }
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View clearPopupView = layoutInflater.inflate(R.layout.popup_clear, null);
+        popupWindow = new PopupWindow(clearPopupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.showAsDropDown(bottomNavigationView.findViewById(R.id.appBarClear), -55, -370);
+
+        /*
+        *   clearPopupView.findViewById(R.id.eraser).setOnClickListener(new View.OnClickListener() {
+        *     @Override
+        *     public void onClick(View v) {
+        *         simpleDimpleDrawingView.paintColor = getBackgroundColor();
+        *         simpleDimpleDrawingView.specialPath.reset();
+        *         simpleDimpleDrawingView.eraserActivated = true;
+        *     }
+        *   });
+        */
+
+        clearPopupView.findViewById(R.id.eraser).setEnabled(false);
+
+        clearPopupView.findViewById(R.id.clearAll).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                simpleDimpleDrawingView.specialPath.reset();
+                simpleDimpleDrawingView.invalidate();
+            }
+        });
     }
 
-    // ShapesSelect
+    // region ShapesSelect
     DialogInterface.OnClickListener onClickListener = (dialog , which) -> {
         ListView listView = ((AlertDialog) dialog).getListView();
         switch (id) {
@@ -206,7 +221,6 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                     int pos = listView.getCheckedItemPosition();
                     if (pos == 0) {
                         alertDialog = DialogScreenFabric.getAlertDialog(this, DialogScreenFabric.RoundSize);
-                        assert alertDialog != null;
                         alertDialog.show();
                         simpleDimpleDrawingView.id = 1;
                     } else if (pos == 1) {
@@ -229,36 +243,16 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                 break;
         }
     };
+    // endregion
 
-    // ColorSetting
-    private void createColorSettingsDialog() {
-        startActivity(new Intent(this, ColorSettingsActivity.class));
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        preferences.registerOnSharedPreferenceChangeListener((sharedPreferences , key) -> {
-            if (key.equals("color_background")) {
-                simpleDimpleDrawingView.setBackgroundColor(sharedPreferences.getInt(key, Color.WHITE));
-                simpleDimpleDrawingView.invalidateOutline();
-            } else if (key.equals("color_drawing")) {
-                simpleDimpleDrawingView.paintColor = sharedPreferences.getInt(key, Color.BLACK);
-                simpleDimpleDrawingView.specialPath = new SpecialPath();
-                simpleDimpleDrawingView.invalidateOutline();
-                if (simpleDimpleDrawingView.paintColor != sharedPreferences.getInt(key, Color.BLACK)) {
-                    Toast.makeText(this, "Error!", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-    }
-
-    // FAB popupWindow
+    // region FAB popupWindow
     public void showMinSettingDrawWindow() {
         LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View popupView = layoutInflater.inflate(R.layout.popup_fab, null);
         popupWindow = new PopupWindow(popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         popupWindow.setOutsideTouchable(true);
-        popupWindow.showAtLocation(this.findViewById(R.id.fab), Gravity.CENTER, posPopupWindow[0], posPopupWindow[1]);
+        popupWindow.showAtLocation(findViewById(R.id.fab), Gravity.CENTER, posPopupWindow[0], posPopupWindow[1]);
 
         if (turnOnMove == 1) {
             popupView.setOnTouchListener(new View.OnTouchListener() {
@@ -297,12 +291,15 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
             public void onClick(View v) {
             }
         });
+        undo.setEnabled(false);
+
         ImageButton redo = popupView.findViewById(R.id.redo);
         redo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             }
         });
+        redo.setEnabled(false);
 
         textView = popupView.findViewById(R.id.textView);
         textView.setText(String.valueOf(simpleDimpleDrawingView.stroke));
@@ -335,5 +332,70 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     public void onStopTrackingTouch(SeekBar seekBar) {
         simpleDimpleDrawingView.stroke = seekBar.getProgress();
         simpleDimpleDrawingView.specialPath.rewind();
+    }
+    // endregion
+
+    public void showColorSettingMenu (View v) {
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = layoutInflater.inflate(R.layout.popup_color_setting, null);
+        popupWindow = new PopupWindow(popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.showAsDropDown(bottomNavigationView.findViewById(R.id.appBarColor), -55, -370);
+
+        ImageButton drawColor = popupView.findViewById(R.id.drawColor);
+        drawColor.setOnClickListener(v12 -> createColorPickerDialog(2));
+
+        ImageButton backColor = popupView.findViewById(R.id.backColor);
+        backColor.setOnClickListener(v1 -> createColorPickerDialog(1));
+    }
+
+    public int getBackgroundColor () {
+        int color = Color.WHITE;
+        Drawable background = simpleDimpleDrawingView.getBackground();
+        if (background instanceof ColorDrawable)
+            color = ((ColorDrawable) background).getColor();
+
+        return color;
+    }
+
+    private void createColorPickerDialog(int id) {
+        if (id == 1) {
+            ColorPickerDialog.newBuilder()
+                    .setDialogId(id)
+                    .setDialogTitle(R.string.color_background)
+                    .setColor(getBackgroundColor())
+                    .setDialogType(ColorPickerDialog.TYPE_PRESETS)
+                    .setAllowCustom(true)
+                    .setAllowPresets(true)
+                    .setColorShape(ColorShape.SQUARE)
+                    .show(this);
+        } else if (id == 2) {
+            ColorPickerDialog.newBuilder()
+                    .setDialogId(id)
+                    .setDialogTitle(R.string.color_drawing)
+                    .setColor(simpleDimpleDrawingView.paintColor)
+                    .setDialogType(ColorPickerDialog.TYPE_PRESETS)
+                    .setAllowCustom(true)
+                    .setAllowPresets(true)
+                    .setColorShape(ColorShape.SQUARE)
+                    .show(this);
+        }
+    }
+
+    @Override
+    public void onColorSelected(int dialogId , int color) {
+        if (dialogId == 1) {
+            simpleDimpleDrawingView.setBackgroundColor(color);
+            simpleDimpleDrawingView.invalidate();
+        } else if (dialogId == 2) {
+            simpleDimpleDrawingView.paintColor = color;
+            simpleDimpleDrawingView.specialPath = new SpecialPath();
+            simpleDimpleDrawingView.invalidate();
+        }
+    }
+
+    @Override
+    public void onDialogDismissed(int dialogId) {
     }
 }

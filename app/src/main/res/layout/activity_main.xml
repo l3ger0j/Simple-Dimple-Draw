@@ -9,7 +9,7 @@
     <org.l3ger0j.simpledimpledraw.SimpleDimpleDrawingView
         android:id="@+id/simpleDrawingView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -34,7 +34,7 @@
         android:clickable="true"
         android:contentDescription="@string/fabText"
         android:focusable="true"
-        android:src="@android:drawable/ic_menu_edit"
+        android:src="@drawable/baseline_create_24"
         app:backgroundTint="#1E88E5"
         app:elevation="8dp"
         app:layout_anchor="@+id/bottomAppbar" />
