@@ -60,14 +60,14 @@ public class DialogScreenFabric {
                 return builder.create();
             case CaptureDialog:
                 builder.setTitle(R.string.captureDialog);
-                ImageView bmImage = new ImageView(mainActivity);
-                bmImage.setImageBitmap(mainActivity.bmMyView);
+                ImageView imageView = new ImageView(mainActivity);
+                imageView.setImageBitmap(SimpleDimpleDrawingView.getCanvasBitmap());
                 ViewGroup.LayoutParams bmImageLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
-                bmImage.setLayoutParams(bmImageLayoutParams);
+                imageView.setLayoutParams(bmImageLayoutParams);
                 LinearLayout dialogLayout = new LinearLayout(mainActivity);
                 dialogLayout.setOrientation(LinearLayout.VERTICAL);
-                dialogLayout.addView(bmImage);
+                dialogLayout.addView(imageView);
                 builder.setView(dialogLayout);
                 builder.setPositiveButton(android.R.string.ok, null);
                 return builder.create();

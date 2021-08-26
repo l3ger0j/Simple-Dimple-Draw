@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     TextView textView;
     PopupWindow popupWindow;
 
-    Bitmap bmMyView = SimpleDimpleDrawingView.getCanvasBitmap();
     int id;
     int turnOnMove;
     int[] posPopupWindow = new int[2];
@@ -165,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
             File myFile = new File(path);
             FileOutputStream fOut = new FileOutputStream(myFile);
-            bmMyView.compress(Bitmap.CompressFormat.PNG,90,fOut);
+            SimpleDimpleDrawingView.getCanvasBitmap().compress(Bitmap.CompressFormat.PNG,90,fOut);
             fOut.flush();
             fOut.close();
             MediaStore.Images.Media.insertImage(getContentResolver(), myFile.getAbsolutePath(), myFile.getName(), myFile.getName());
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_LONG).show();
-        alertDialog = DialogScreenFabric.getAlertDialog(this , 4);
+        alertDialog = DialogScreenFabric.getAlertDialog(this, 4);
         alertDialog.show();
     }
     // endregion
