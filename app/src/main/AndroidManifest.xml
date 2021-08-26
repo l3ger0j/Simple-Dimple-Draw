@@ -13,11 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SimpleDimpleDraw">
         <activity
-            android:name=".ColorSettingsActivity"
-            android:theme="@style/Theme.AppCompat.Light.Dialog.Alert"
-            android:exported="true" />
-        <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -11,7 +11,7 @@
     <string name="aboutMenu">About</string>
     <string name="settingsColor">Color settings</string>
     <string name="sizeRadius">Radius. Def is 10</string>
-    <string name="no">Cancel</string>
+    <string name="captureDialog">Canvas captured</string>
     <string name="title_activity_color_setting">Color settings</string>
     <string name="color_background">Color background</string>
     <string name="color_drawing">Color drawing</string>

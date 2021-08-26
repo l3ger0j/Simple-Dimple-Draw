@@ -10,16 +10,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 
 /*
@@ -47,17 +41,13 @@ public class SimpleDimpleDrawingView extends View {
     Canvas drawCanvas = new Canvas();
     static Bitmap myCanvasBitmap;
     Matrix identityMatrix = new Matrix();
-
     SpecialPath specialPath = new SpecialPath();
 
-    int stroke = 5;
+    int stroke = 30;
     int id = 0;
     int active = 0;
-    float drawRadius = 10;
-
-    public static class DrawPaint extends Paint {
-
-    }
+    boolean eraserActivated;
+    float drawRadius = 100;
 
     public SimpleDimpleDrawingView(Context context , AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -117,10 +107,15 @@ public class SimpleDimpleDrawingView extends View {
                             float piX = pointX + 30;
                             float piY = pointY + 30;
                             RectF rectF = new RectF(pointY , piX , pointX , piY);
-                            drawCanvas.drawOval(rectF, drawPaint);;
+                            drawCanvas.drawOval(rectF, drawPaint);
                     }
                 } else if (id == 0) {
                     specialPath.lineTo(pointX , pointY);
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                if (eraserActivated) {
+                    eraserActivated = false;
                 }
                 break;
             default:
