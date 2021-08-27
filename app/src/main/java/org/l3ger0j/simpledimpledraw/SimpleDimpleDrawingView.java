@@ -42,11 +42,11 @@ public class SimpleDimpleDrawingView extends View {
     static Bitmap myCanvasBitmap;
     Matrix identityMatrix = new Matrix();
     SpecialPath specialPath = new SpecialPath();
+    SpecialPath clearPath = new SpecialPath();
 
     int stroke = 30;
     int id = 0;
     int active = 0;
-    boolean eraserActivated;
     float drawRadius = 100;
 
     public SimpleDimpleDrawingView(Context context , AttributeSet attributeSet) {
@@ -59,6 +59,7 @@ public class SimpleDimpleDrawingView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         drawCanvas.drawPath(specialPath, drawPaint);
+        drawCanvas.drawPath(clearPath, drawPaint);
         canvas.drawBitmap(myCanvasBitmap, identityMatrix, null);
         setupPaint();
     }
@@ -75,6 +76,7 @@ public class SimpleDimpleDrawingView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 specialPath.moveTo(pointX , pointY);
+                clearPath.moveTo(pointX, pointY);
                 if (active == 1) {
                     switch (id) {
                         case 1:
@@ -108,14 +110,12 @@ public class SimpleDimpleDrawingView extends View {
                             float piY = pointY + 30;
                             RectF rectF = new RectF(pointY , piX , pointX , piY);
                             drawCanvas.drawOval(rectF, drawPaint);
+                        case 4:
+                            clearPath.lineTo(pointX , pointY);
+                            break;
                     }
                 } else if (id == 0) {
                     specialPath.lineTo(pointX , pointY);
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                if (eraserActivated) {
-                    eraserActivated = false;
                 }
                 break;
             default:

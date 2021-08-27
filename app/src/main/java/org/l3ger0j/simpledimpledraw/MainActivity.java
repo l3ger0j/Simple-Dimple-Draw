@@ -3,16 +3,21 @@ package org.l3ger0j.simpledimpledraw;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,8 +26,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
@@ -57,8 +60,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     AlertDialog alertDialog;
     TextView textView;
     PopupWindow popupWindow;
+    Uri uriBitmap = null;
 
     int id;
+    int i = 0;
     int turnOnMove;
     int[] posPopupWindow = new int[2];
 
@@ -141,41 +146,50 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         popupWindow.setOutsideTouchable(true);
         popupWindow.showAsDropDown(bottomNavigationView.findViewById(R.id.appBarSave), 0, -370);
 
-        popupView.findViewById(R.id.saveCanvas).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openCaptureDialog();
+        popupView.findViewById(R.id.saveCanvas).setOnClickListener(v -> {
+            try {
+                File extStorage = getAppExternalFilesDir();
+
+                Date date = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault());
+
+                String fileName = "PIC_"+sdf.format(date)+".png";
+
+                String path = extStorage.getAbsolutePath() + "/" + fileName;
+
+                File myFile = new File(path);
+                FileOutputStream fOut = new FileOutputStream(myFile);
+                SimpleDimpleDrawingView.getCanvasBitmap().compress(Bitmap.CompressFormat.PNG,90,fOut);
+                fOut.flush();
+                fOut.close();
+                uriBitmap = Uri.fromFile(myFile);
+                MediaStore.Images.Media.insertImage(getContentResolver(), myFile.getAbsolutePath(), myFile.getName(), myFile.getName());
+                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{myFile.toString()}, null, null);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            popupWindow.dismiss();
+
+            Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_LONG).show();
+            alertDialog = DialogScreenFabric.getAlertDialog(MainActivity.this, 4);
+            alertDialog.show();
         });
 
-        popupView.findViewById(R.id.shareCanvas).setEnabled(false);
-    }
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        builder.detectFileUriExposure();
 
-    private void openCaptureDialog() {
-        try {
-            File extStorage = this.getAppExternalFilesDir( );
-
-            Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault());
-
-            String fileName = "PIC_"+sdf.format(date)+".png";
-
-            String path = extStorage.getAbsolutePath() + "/" + fileName;
-
-            File myFile = new File(path);
-            FileOutputStream fOut = new FileOutputStream(myFile);
-            SimpleDimpleDrawingView.getCanvasBitmap().compress(Bitmap.CompressFormat.PNG,90,fOut);
-            fOut.flush();
-            fOut.close();
-            MediaStore.Images.Media.insertImage(getContentResolver(), myFile.getAbsolutePath(), myFile.getName(), myFile.getName());
-            MediaScannerConnection.scanFile(getApplicationContext(), new String[]{myFile.toString()}, null, null);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (uriBitmap != null) {
+            popupView.findViewById(R.id.shareCanvas).setOnClickListener(v -> {
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uriBitmap);
+                shareIntent.setType("image/jpeg");
+                startActivity(Intent.createChooser(shareIntent, "Send to"));
+            });
+        } else {
+            popupView.findViewById(R.id.shareCanvas).setEnabled(false);
         }
-
-        Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_LONG).show();
-        alertDialog = DialogScreenFabric.getAlertDialog(this, 4);
-        alertDialog.show();
     }
     // endregion
 
@@ -188,26 +202,25 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         popupWindow.setOutsideTouchable(true);
         popupWindow.showAsDropDown(bottomNavigationView.findViewById(R.id.appBarClear), -55, -370);
 
-        /*
-        *   clearPopupView.findViewById(R.id.eraser).setOnClickListener(new View.OnClickListener() {
-        *     @Override
-        *     public void onClick(View v) {
-        *         simpleDimpleDrawingView.paintColor = getBackgroundColor();
-        *         simpleDimpleDrawingView.specialPath.reset();
-        *         simpleDimpleDrawingView.eraserActivated = true;
-        *     }
-        *   });
-        */
-
-        clearPopupView.findViewById(R.id.eraser).setEnabled(false);
-
-        clearPopupView.findViewById(R.id.clearAll).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        clearPopupView.findViewById(R.id.eraser).setOnClickListener(v -> {
+            if (i == 0) {
+                ++i;
+                simpleDimpleDrawingView.drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
                 simpleDimpleDrawingView.specialPath.reset();
-                simpleDimpleDrawingView.invalidate();
+                simpleDimpleDrawingView.id = 4;
+            } else if (i == 1) {
+                --i;
+                simpleDimpleDrawingView.drawPaint.setXfermode(null);
+                simpleDimpleDrawingView.clearPath.reset();
+                simpleDimpleDrawingView.id = 0;
             }
+
+        });
+
+        clearPopupView.findViewById(R.id.clearAll).setOnClickListener(v -> {
+            simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+            simpleDimpleDrawingView.specialPath.reset();
+            simpleDimpleDrawingView.invalidate();
         });
     }
 
