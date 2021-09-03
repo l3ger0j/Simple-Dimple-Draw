@@ -10,36 +10,18 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-
-/*
-    // Stores Points to draw circles each time user touches
-    private List<Point> circlePoints;
-    circlePoints = new ArrayList<>();
-    for (Point p : circlePoints) { canvas.drawCircle(p.x, p.y, 5, drawPaint); }
-
-    canvas.drawPath(path, drawPaint);
-
-    // Append new circle each time user presses on screen
-    float touchX = event.getX();
-    float touchY = event.getY();
-
-    circlePoints.add(new Point(Math.round(touchX), Math.round(touchY)));
- */
-
 public class SimpleDimpleDrawingView extends View {
 
-    // Initial Color
     public int paintColor = Color.BLACK;
-    // Define Paint and Canvas
     public DrawPaint drawPaint = new DrawPaint();
-
-    Canvas drawCanvas = new Canvas();
     static Bitmap myCanvasBitmap;
+    Canvas drawCanvas = new Canvas();
     Matrix identityMatrix = new Matrix();
     SpecialPath specialPath = new SpecialPath();
     SpecialPath clearPath = new SpecialPath();
@@ -72,7 +54,6 @@ public class SimpleDimpleDrawingView extends View {
         float pointX = event.getX();
         float pointY = event.getY();
 
-        // TODO Rewrite this corner
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 specialPath.moveTo(pointX , pointY);
@@ -80,16 +61,16 @@ public class SimpleDimpleDrawingView extends View {
                 if (active == 1) {
                     switch (id) {
                         case 1:
-                            drawCanvas.drawCircle(pointX , pointY , drawRadius , drawPaint);
+                            specialPath.addCircle(pointX , pointY , drawRadius , Path.Direction.CW);
                             break;
                         case 2:
-                            drawCanvas.drawRect(pointX , pointX , pointY , pointY , drawPaint);
+                            specialPath.addRect(pointX , pointX , pointY , pointY , Path.Direction.CW);
                             break;
                         case 3:
-                            float piX = pointX + 10;
-                            float piY = pointY + 10;
-                            RectF rectF = new RectF(pointX , piY , pointX , piX);
-                            drawCanvas.drawOval(rectF , drawPaint);
+                            float piX = pointX + 100;
+                            float piY = pointY + 100;
+                            RectF rectF = new RectF(pointX , piY , piX , piY);
+                            specialPath.addOval(rectF , Path.Direction.CW);
                     }
                 }
                 break;
@@ -118,10 +99,7 @@ public class SimpleDimpleDrawingView extends View {
                     specialPath.lineTo(pointX , pointY);
                 }
                 break;
-            default:
-                return false;
         }
-        // indicate view should be redrawn
         postInvalidate();
         return true;
     }
@@ -141,10 +119,8 @@ public class SimpleDimpleDrawingView extends View {
     public static Bitmap getCanvasBitmap(){
 
         return myCanvasBitmap;
-
     }
 
-    // Setup Paint with color and stroke style
     private void setupPaint() {
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
@@ -153,5 +129,4 @@ public class SimpleDimpleDrawingView extends View {
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
     }
-
 }

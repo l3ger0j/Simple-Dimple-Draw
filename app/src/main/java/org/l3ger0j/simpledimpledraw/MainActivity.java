@@ -3,7 +3,6 @@ package org.l3ger0j.simpledimpledraw;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,6 +48,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements ColorPickerDialogListener, SeekBar.OnSeekBarChangeListener {
@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     Uri uriBitmap = null;
 
     int id;
-    int i = 0;
     int turnOnMove;
     int[] posPopupWindow = new int[2];
 
@@ -203,23 +202,25 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         popupWindow.showAsDropDown(bottomNavigationView.findViewById(R.id.appBarClear), -55, -370);
 
         clearPopupView.findViewById(R.id.eraser).setOnClickListener(v -> {
-            if (i == 0) {
-                ++i;
-                simpleDimpleDrawingView.drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            PorterDuffXfermode porterDuffXfermode =
+                    new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+            if (simpleDimpleDrawingView.drawPaint.getXfermode() == null) {
+                simpleDimpleDrawingView.drawPaint.setXfermode(porterDuffXfermode);
                 simpleDimpleDrawingView.specialPath.reset();
+                simpleDimpleDrawingView.clearPath.reset();
                 simpleDimpleDrawingView.id = 4;
-            } else if (i == 1) {
-                --i;
+            } else {
                 simpleDimpleDrawingView.drawPaint.setXfermode(null);
+                simpleDimpleDrawingView.specialPath.reset();
                 simpleDimpleDrawingView.clearPath.reset();
                 simpleDimpleDrawingView.id = 0;
             }
-
         });
 
         clearPopupView.findViewById(R.id.clearAll).setOnClickListener(v -> {
-            simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+            simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
             simpleDimpleDrawingView.specialPath.reset();
+            simpleDimpleDrawingView.clearPath.reset();
             simpleDimpleDrawingView.invalidate();
         });
     }
@@ -403,6 +404,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         } else if (dialogId == 2) {
             simpleDimpleDrawingView.paintColor = color;
             simpleDimpleDrawingView.specialPath = new SpecialPath();
+            simpleDimpleDrawingView.drawPaint.setXfermode(null);
+            simpleDimpleDrawingView.clearPath.reset();
+            simpleDimpleDrawingView.id = 0;
             simpleDimpleDrawingView.invalidate();
         }
     }

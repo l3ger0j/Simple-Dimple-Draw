@@ -26,5 +26,3 @@ So, to begin with, we will need:
 3. Press on "Make Project"
 
 ## Known issues
-
-1. 
