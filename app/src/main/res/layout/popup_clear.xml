@@ -10,12 +10,14 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:rotation="180"
-        app:srcCompat="@drawable/baseline_create_24" />
+        app:srcCompat="@drawable/baseline_create_24"
+        android:contentDescription="@string/erase" />
 
     <ImageButton
         android:id="@+id/clearAll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        app:srcCompat="@drawable/baseline_delete_24" />
+        app:srcCompat="@drawable/baseline_delete_24"
+        android:contentDescription="@string/appBarClear" />
 </LinearLayout>

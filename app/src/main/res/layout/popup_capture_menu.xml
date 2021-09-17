@@ -10,12 +10,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        app:srcCompat="@drawable/baseline_save_24" />
+        app:srcCompat="@drawable/baseline_save_24"
+        android:contentDescription="@string/appBarSave" />
 
     <ImageButton
         android:id="@+id/shareCanvas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        app:srcCompat="@drawable/baseline_share_24" />
+        app:srcCompat="@drawable/baseline_share_24"
+        android:contentDescription="@string/share" />
 </LinearLayout>
