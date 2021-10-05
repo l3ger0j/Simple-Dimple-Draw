@@ -2,6 +2,8 @@ package org.l3ger0j.simpledimpledraw;
 
 import android.graphics.Path;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -13,7 +15,7 @@ public class SpecialPath extends Path implements Serializable {
     private final List<Action> actions = new LinkedList<>();
     private static final long serialVersionUID = 101L;
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private void readObject(@NonNull ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
 
         for (Action action : actions) {
@@ -54,7 +56,7 @@ public class SpecialPath extends Path implements Serializable {
         }
 
         @Override
-        public void perform(Path path) {
+        public void perform(@NonNull Path path) {
             path.moveTo(x, y);
         }
     }
@@ -69,7 +71,7 @@ public class SpecialPath extends Path implements Serializable {
         }
 
         @Override
-        public void perform(Path path) {
+        public void perform(@NonNull Path path) {
             path.lineTo(x, y);
         }
     }
@@ -86,7 +88,7 @@ public class SpecialPath extends Path implements Serializable {
         }
 
         @Override
-        public void perform(Path path) {
+        public void perform(@NonNull Path path) {
             path.quadTo(x1, y1, x2, y2);
         }
     }

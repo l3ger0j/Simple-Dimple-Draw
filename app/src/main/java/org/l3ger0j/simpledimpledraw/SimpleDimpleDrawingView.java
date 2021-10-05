@@ -39,10 +39,10 @@ public class SimpleDimpleDrawingView extends View {
 
     Point[] points = new Point[4];
     int groupId = -1;
-    private final ArrayList<ColorBall> cornballs = new ArrayList<>();
+    private final ArrayList<RoundBall> cornballs = new ArrayList<>();
 
     private final int mStrokeColor = paintColor;
-    private final int mFillColor = Color.parseColor("#55DB1255");
+    private final int mFillColor = Color.alpha(0);
     private final Rect mCropRect = new Rect();
 
     // array that holds the balls
@@ -69,6 +69,7 @@ public class SimpleDimpleDrawingView extends View {
         paint = new Paint();
     }
 
+    // resizable rectangle on stackoverflow
     private void initRectangle(int X, int Y) {
         //initialize rectangle.
         points[0] = new Point();
@@ -91,7 +92,7 @@ public class SimpleDimpleDrawingView extends View {
         groupId = 1;
         // declare each ball with the ColorBall class
         for (int i = 0; i < points.length; i++) {
-            cornballs.add(new ColorBall(getContext(), points[i], i));
+            cornballs.add(new RoundBall(getContext(), R.drawable.gray_circle, points[i], i));
         }
     }
 
@@ -144,7 +145,7 @@ public class SimpleDimpleDrawingView extends View {
             paint.setTextSize(18);
             paint.setStrokeWidth(0);
             for (int i = 0; i < cornballs.size(); i ++) {
-                ColorBall ball = cornballs.get(i);
+                RoundBall ball = cornballs.get(i);
                 canvas.drawBitmap(ball.getBitmap(), ball.getX(), ball.getY(),
                         paint);
 
@@ -183,7 +184,7 @@ public class SimpleDimpleDrawingView extends View {
                                 balID = -1;
                                 groupId = -1;
                                 for (int i = cornballs.size()-1; i>=0; i--) {
-                                    ColorBall ball = cornballs.get(i);
+                                    RoundBall ball = cornballs.get(i);
                                     // check if inside the bounds of the ball (circle)
                                     // get the center for the ball
                                     int centerX = ball.getX() + ball.getWidthOfBall();
@@ -290,52 +291,5 @@ public class SimpleDimpleDrawingView extends View {
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
-    }
-
-    public static class ColorBall {
-
-        Bitmap bitmap;
-        Context mContext;
-        Point point;
-        int id;
-
-        public ColorBall(@NonNull Context context , Point point , int id) {
-            this.id = id;
-            bitmap = SimpleDimpleDrawingView.getCanvasBitmap();
-            mContext = context;
-            this.point = point;
-        }
-
-        public int getWidthOfBall() {
-            return bitmap.getWidth();
-        }
-
-        public int getHeightOfBall() {
-            return bitmap.getHeight();
-        }
-
-        public Bitmap getBitmap() {
-            return bitmap;
-        }
-
-        public int getX() {
-            return point.x;
-        }
-
-        public int getY() {
-            return point.y;
-        }
-
-        public int getID() {
-            return id;
-        }
-
-        public void setX(int x) {
-            point.x = x;
-        }
-
-        public void setY(int y) {
-            point.y = y;
-        }
     }
 }

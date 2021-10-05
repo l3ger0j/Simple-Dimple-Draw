@@ -21,7 +21,7 @@ public class DialogScreenBuilder {
     private static final String[] shapes = {"circle" , "rectangle" , "not_oval"};
 
     @NonNull
-    public static AlertDialog getAlertDialog(Activity activity , DialogType dialogType) {
+    public static AlertDialog getAlertDialog(Activity activity , @NonNull DialogType dialogType) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         MainActivity mainActivity = (MainActivity) activity;
 

@@ -9,7 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
@@ -17,10 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.view.ActionMode;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -30,6 +27,7 @@ import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,10 +59,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     // region Buttons
     FloatingActionButton floatingActionButton;
     Chip chip;
+    ToggleButton toggleButton;
     BottomNavigationView bottomNavigationView;
     // endregion
 
-    android.view.ActionMode actionMode;
     AlertDialog alertDialog;
     TextView textView;
     PopupWindowBuilder popupWindowBuilder = new PopupWindowBuilder();
@@ -117,6 +115,20 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             bottomNavigationView.setVisibility(View.VISIBLE);
             floatingActionButton.show();
             chip.setVisibility(View.GONE);
+        });
+
+        toggleButton = binding.toggleButton;
+        binding.toggleButton.setOnClickListener(v -> {
+            RectF rectF = new RectF(
+                    simpleDimpleDrawingView.points[0].x,
+                    simpleDimpleDrawingView.points[1].y,
+                    simpleDimpleDrawingView.points[2].x,
+                    simpleDimpleDrawingView.points[3].y);
+            simpleDimpleDrawingView.drawCanvas.drawRect(rectF, simpleDimpleDrawingView.drawPaint);
+            simpleDimpleDrawingView.id = 0;
+            bottomNavigationView.setVisibility(View.VISIBLE);
+            floatingActionButton.show();
+            toggleButton.setVisibility(View.GONE);
         });
 
         setContentView(binding.getRoot());
@@ -236,37 +248,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         });
     }
 
-    private final ActionMode.Callback callback = new ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(@NonNull ActionMode mode , Menu menu) {
-            mode.getMenuInflater().inflate(R.menu.shape_callback, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode , Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode , @NonNull MenuItem item) {
-            int mItem = item.getOrder();
-            if (mItem == 0) {
-                Bitmap mBitmap = SimpleDimpleDrawingView.getCanvasBitmap();
-                Drawable mDrawable = new BitmapDrawable(getResources() , mBitmap);
-                simpleDimpleDrawingView.setBackground(mDrawable);
-                actionMode.finish();
-                simpleDimpleDrawingView.id = 0;
-            }
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            actionMode = null;
-        }
-    };
-
     // region ShapesSelect
     DialogInterface.OnClickListener onClickListener = (dialog , which) -> {
         ListView listView = ((AlertDialog) dialog).getListView();
@@ -279,19 +260,17 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                                 getAlertDialog(this, DialogType.RoundSize);
                         alertDialog.show();
                         simpleDimpleDrawingView.id = 1;
+                        break;
                     } else if (pos == 1) {
-                        Toast.makeText(this, "Work in progress!", Toast.LENGTH_SHORT);
-                        /*
+                        toggleButton.setChecked(true);
+                        floatingActionButton.hide();
+                        bottomNavigationView.setVisibility(View.INVISIBLE);
+                        toggleButton.setVisibility(View.VISIBLE);
                         simpleDimpleDrawingView.id = 2;
-                        if (actionMode == null) {
-                            actionMode = startActionMode(callback);
-                        } else {
-                            actionMode.finish();
-                        }
-                         */
                         break;
                     } else if (pos == 2) {
                         simpleDimpleDrawingView.id = 3;
+                        break;
                     }
                 }
                 break;
