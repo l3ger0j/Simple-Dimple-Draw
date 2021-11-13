@@ -3,19 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/appBarShapes"
+        android:id="@+id/appBarMenu"
         android:icon="@drawable/outline_category_white_18dp"
-        android:title="@string/appBarShapes" />
+        android:title="@string/appBarMenu" />
 
     <item
         android:id="@+id/appBarColor"
         android:icon="@drawable/outline_color_lens_white_18dp"
         android:title="@string/appBarColor" />
-
-    <item
-        android:id="@+id/appBarAbout"
-        android:icon="@drawable/baseline_menu_24"
-        android:title="" />
 
     <item
         android:id="@+id/appBarSave"

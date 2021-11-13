@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">SimpleDimpleDraw</string>
-    <string name="appBarShapes">Shapes</string>
+    <string name="appBarMenu">Menu</string>
     <string name="appBarColor">Color</string>
     <string name="appBarSave">Save</string>
     <string name="appBarClear">Clear</string>
@@ -16,4 +16,14 @@
     <string name="erase">Erase</string>
     <string name="share">Share</string>
     <string name="setFigure">Set figure</string>
+    <string name="about">About</string>
+    <string name="hide_down_bar">Hide down bar</string>
+    <string name="add_a_oval">Add a oval</string>
+    <string name="add_a_rectangle">Add a rectangle</string>
+    <string name="add_a_circle">Add a circle</string>
+    <string name="hidden_menu">Hidden menu</string>
+    <string name="set_drawing_color">Set drawing color</string>
+    <string name="close_menu">Close menu</string>
+    <string name="set_background_color">Set background color</string>
+    <string name="clear_canvas">Clear canvas</string>
 </resources>

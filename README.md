@@ -26,3 +26,6 @@ So, to begin with, we will need:
 3. Press on "Make Project"
 
 ## Known issues
+
+1. The undo/redo function does not work
+2. Oval is not oval

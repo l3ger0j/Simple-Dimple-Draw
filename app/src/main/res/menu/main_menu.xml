@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/groupShapes">
+        <item
+            android:id="@+id/addCircle"
+            android:title="@string/add_a_circle" />
+        <item
+            android:id="@+id/addRectangle"
+            android:title="@string/add_a_rectangle" />
+        <item
+            android:id="@+id/addOval"
+            android:title="@string/add_a_oval" />
+    </group>
+
+    <group
+        android:id="@+id/groupSettings">
+        <item
+            android:id="@+id/hide"
+            android:title="@string/hide_down_bar" />
+        <item
+            android:id="@+id/about"
+            android:title="@string/about" />
+    </group>
+</menu>
