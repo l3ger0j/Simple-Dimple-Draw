@@ -85,12 +85,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:contentDescription="@string/erase"
             android:rotation="180"
             android:visibility="gone"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini"
-            app:srcCompat="@drawable/baseline_create_24"
-            android:contentDescription="@string/erase" />
+            app:srcCompat="@drawable/baseline_create_24" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabClearCanvas"

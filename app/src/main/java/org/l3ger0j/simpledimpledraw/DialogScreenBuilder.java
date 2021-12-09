@@ -2,9 +2,6 @@ package org.l3ger0j.simpledimpledraw;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.text.Html;
-import android.text.SpannableString;
-import android.text.util.Linkify;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;

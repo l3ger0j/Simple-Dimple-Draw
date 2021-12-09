@@ -24,8 +24,3 @@ So, to begin with, we will need:
 	
 2. Open the folder you just downloaded in Android Studio
 3. Press on "Make Project"
-
-## Known issues
-
-1. The undo/redo function does not work
-2. Oval is not oval

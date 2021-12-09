@@ -180,11 +180,13 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     simpleDimpleDrawingView.specialPath.reset();
                     simpleDimpleDrawingView.clearPath.reset();
                     simpleDimpleDrawingView.id = 4;
+                    v.setRotation(180);
                 } else {
                     simpleDimpleDrawingView.drawPaint.setXfermode(null);
                     simpleDimpleDrawingView.specialPath.reset();
                     simpleDimpleDrawingView.clearPath.reset();
                     simpleDimpleDrawingView.id = 0;
+                    v.setRotation(0);
                 }
             } else if (v.getId() == R.id.fabClearCanvas) {
                 simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
@@ -237,6 +239,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 floatingActionButton.setRippleColor(color);
                 simpleDimpleDrawingView.id = 0;
                 showMinSettingDrawWindow();
+                simpleDimpleDrawingView.drawPaint.setXfermode(null);
+                simpleDimpleDrawingView.specialPath.reset();
+                simpleDimpleDrawingView.clearPath.reset();
+                simpleDimpleDrawingView.id = 0;
             }
         }
     };
