@@ -23,15 +23,9 @@ public class DialogScreenBuilder {
         MainActivity mainActivity = (MainActivity) activity;
 
         switch (dialogType) {
-            case RoundSizeDialog:
-                builder.setTitle(R.string.roundSize);
-                View view = mainActivity.getLayoutInflater().inflate(R.layout.shapes_size_dialog , null);
-                builder.setView(view);
-                gID = 1;
-                builder.setPositiveButton(android.R.string.ok , mainActivity.dialogMainOnClickListener);
-                return builder.create();
             case CaptureDialog:
                 builder.setTitle(R.string.captureDialog);
+                gID = 1;
                 ImageView imageView = new ImageView(mainActivity);
                 imageView.setImageBitmap(SimpleDimpleDrawingView.getCanvasBitmap());
                 ViewGroup.LayoutParams bmImageLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -42,6 +36,7 @@ public class DialogScreenBuilder {
                 dialogLayout.addView(imageView);
                 builder.setView(dialogLayout);
                 builder.setPositiveButton(android.R.string.ok, null);
+                builder.setNegativeButton(R.string.share, mainActivity.dialogMainOnClickListener);
                 return builder.create();
             case AboutDialog:
                 builder.setTitle(R.string.aboutMenu);

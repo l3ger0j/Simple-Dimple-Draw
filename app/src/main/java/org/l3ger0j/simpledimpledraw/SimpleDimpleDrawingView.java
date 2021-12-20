@@ -11,9 +11,12 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -56,6 +59,29 @@ public class SimpleDimpleDrawingView extends View {
         }
         canvas.drawBitmap(myCanvasBitmap, identityMatrix, null);
         setupPaint();
+    }
+
+    public void eraseCanvas (@NonNull PorterDuffXfermode porterDuffXfermode, View v) {
+        if (drawPaint.getXfermode() == null) {
+            drawPaint.setXfermode(porterDuffXfermode);
+            specialPath.reset();
+            clearPath.reset();
+            id = 4;
+            v.setRotation(180);
+        } else {
+            drawPaint.setXfermode(null);
+            specialPath.reset();
+            clearPath.reset();
+            id = 0;
+            v.setRotation(0);
+        }
+    }
+
+    public void clearCanvas () {
+        drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
+        specialPath.reset();
+        clearPath.reset();
+        invalidate();
     }
 
     @SuppressLint("ClickableViewAccessibility")

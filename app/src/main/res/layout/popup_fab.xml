@@ -20,11 +20,16 @@
         android:layout_height="43dp"
         android:layout_below="@+id/seekBar"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp" />
+        android:layout_marginTop="35dp"
+        android:fontFamily="sans-serif"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:typeface="normal" />
 
     <ImageButton
         android:id="@+id/turnMoveDialog"
-        style="@style/Widget.AppCompat.ImageButton"
+        style="@android:style/Widget.Material.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
