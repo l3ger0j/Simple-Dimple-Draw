@@ -47,29 +47,28 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements ColorPickerDialogListener, SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity implements ColorPickerDialogListener,
+        SeekBar.OnSeekBarChangeListener {
 
     // region Layouts
-    SimpleDimpleDrawingView simpleDimpleDrawingView;
-    ShapeManager shapeManager;
+    private SimpleDimpleDrawingView simpleDimpleDrawingView;
+    private ShapeManager shapeManager;
     // endregion
 
     // region Buttons
-    FloatingActionButton floatingActionButton , circleHiddenMenuButton , fabSetDrawColor ,
+    private FloatingActionButton floatingActionButton , circleHiddenMenuButton , fabSetDrawColor ,
             fabCloseMenu , fabSetBackgroundColor , fabEraser , fabClearCanvas;
-    BottomNavigationView bottomNavigationView;
-    ToggleButton toggleButton;
+    private BottomNavigationView bottomNavigationView;
+    private ToggleButton toggleButton;
     // endregion
 
-    AlertDialog alertDialog;
-    PopupMenu popupMenu;
-    TextView textView;
-    PopupWindowBuilder popupWindowBuilder = new PopupWindowBuilder();
-    Uri uriBitmap = null;
-    String path;
-
-    int turnOnMove;
-    int[] posPopupWindow = new int[2];
+    private AlertDialog alertDialog;
+    private TextView textView;
+    private final PopupWindowBuilder popupWindowBuilder = new PopupWindowBuilder();
+    private Uri uriBitmap = null;
+    private String path;
+    private int turnOnMove;
+    private final int[] posPopupWindow = new int[2];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     simpleDimpleDrawingView.drawPaint.setXfermode(porterDuffXfermode);
                     simpleDimpleDrawingView.specialPath.reset();
                     simpleDimpleDrawingView.clearPath.reset();
-                    simpleDimpleDrawingView.id = 4;
+                    simpleDimpleDrawingView.id = 1;
                     v.setRotation(180);
                 } else {
                     simpleDimpleDrawingView.drawPaint.setXfermode(null);
@@ -317,7 +316,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
     // region Menu
     private void showPopupMenu () {
-        popupMenu = new PopupMenu(this, bottomNavigationView.findViewById(R.id.appBarMenu), Gravity.CENTER);
+        PopupMenu popupMenu = new PopupMenu(this ,
+                bottomNavigationView.findViewById(R.id.appBarMenu) , Gravity.CENTER);
         popupMenu.inflate(R.menu.main_menu);
         popupMenu.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();

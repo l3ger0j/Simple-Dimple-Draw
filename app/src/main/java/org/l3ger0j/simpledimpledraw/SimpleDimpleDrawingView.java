@@ -10,13 +10,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -33,7 +31,6 @@ public class SimpleDimpleDrawingView extends View {
     int stroke = 30;
     int id = 0;
     int active = 0;
-    float drawRadius = 100;
 
     public SimpleDimpleDrawingView(Context context , AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -54,7 +51,7 @@ public class SimpleDimpleDrawingView extends View {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         drawCanvas.drawPath(specialPath, drawPaint);
-        if (id == 4) {
+        if (id == 1) {
             drawCanvas.drawPath(clearPath, drawPaint);
         }
         canvas.drawBitmap(myCanvasBitmap, identityMatrix, null);
@@ -66,7 +63,7 @@ public class SimpleDimpleDrawingView extends View {
             drawPaint.setXfermode(porterDuffXfermode);
             specialPath.reset();
             clearPath.reset();
-            id = 4;
+            id = 1;
             v.setRotation(180);
         } else {
             drawPaint.setXfermode(null);
@@ -96,16 +93,6 @@ public class SimpleDimpleDrawingView extends View {
             case MotionEvent.ACTION_DOWN:
                 specialPath.moveTo(pointX , pointY);
                 clearPath.moveTo(pointX, pointY);
-                if (active == 1) {
-                    switch (id) {
-                        case 1:
-                            specialPath.addCircle(pointX , pointY , drawRadius , Path.Direction.CW);
-                            break;
-                        case 2:
-                        case 3:
-                            break;
-                    }
-                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (active == 0) {
@@ -114,11 +101,6 @@ public class SimpleDimpleDrawingView extends View {
                             specialPath.lineTo(pointX , pointY);
                             break;
                         case 1:
-                            specialPath.addCircle(pointX , pointY , drawRadius , Path.Direction.CW);
-                            break;
-                        case 2:
-                        case 3:
-                        case 4:
                             clearPath.lineTo(pointX , pointY);
                             break;
                     }
