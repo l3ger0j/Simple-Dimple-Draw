@@ -102,14 +102,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         fabCloseMenu = binding.fabCloseMenu;
         toggleButton = binding.toggleButton;
 
-        binding.fab.setOnClickListener(mainOnClick);
-        binding.fabHiddenMenu.setOnClickListener(mainOnClick);
-        binding.fabSetDrawColor.setOnClickListener(mainOnClick);
-        binding.fabSetBackgroundColor.setOnClickListener(mainOnClick);
-        binding.fabEraser.setOnClickListener(mainOnClick);
-        binding.fabClearCanvas.setOnClickListener(mainOnClick);
-        binding.fabCloseMenu.setOnClickListener(mainOnClick);
-        binding.toggleButton.setOnClickListener(mainOnClick);
+        binding.fab.setOnClickListener(mainViewOnClickList);
+        binding.fabHiddenMenu.setOnClickListener(mainViewOnClickList);
+        binding.fabSetDrawColor.setOnClickListener(mainViewOnClickList);
+        binding.fabSetBackgroundColor.setOnClickListener(mainViewOnClickList);
+        binding.fabEraser.setOnClickListener(mainViewOnClickList);
+        binding.fabClearCanvas.setOnClickListener(mainViewOnClickList);
+        binding.fabCloseMenu.setOnClickListener(mainViewOnClickList);
+        binding.toggleButton.setOnClickListener(mainViewOnClickList);
 
         setContentView(binding.getRoot());
     }
@@ -117,8 +117,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     @Override
     protected void onResume() {
         super.onResume();
-        if (toggleButton.getVisibility() == View.GONE && circleHiddenMenuButton.getVisibility() ==
-                View.GONE) {
+        if (toggleButton.getVisibility() == View.GONE &&
+                circleHiddenMenuButton.getVisibility() == View.GONE) {
             floatingActionButton.show();
             bottomNavigationView.setVisibility(View.VISIBLE);
         }
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
     }
 
-    View.OnClickListener mainOnClick = new View.OnClickListener() {
+    View.OnClickListener mainViewOnClickList = new View.OnClickListener() {
         @Override
         public void onClick(@NonNull View v) {
             if (v.getId() == R.id.fabHiddenMenu) {
@@ -241,6 +241,17 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
     };
 
+    public DialogInterface.OnClickListener mainDialogOnClickList (int dialogID) {
+        return (dialog , which) -> {
+            if (dialogID == 1) {
+                // ListView listView = ((AlertDialog) dialog).getListView();
+                if (which == Dialog.BUTTON_NEGATIVE) {
+                    sendPic();
+                }
+            }
+        };
+    }
+
     // region picSave
     private void openCaptureMenu() {
         View popupView = popupWindowBuilder.createPopupWindowView(this, WindowType.CaptureMenu);
@@ -276,6 +287,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             popupWindow.dismiss();
 
             Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_LONG).show();
+            DialogScreenBuilder dialogScreenBuilder = new DialogScreenBuilder();
+            dialogScreenBuilder.setOnClickListener(mainDialogOnClickList(1));
             alertDialog = DialogScreenBuilder.createAlertDialog(this , DialogType.CaptureDialog);
             alertDialog.show();
         });
@@ -296,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     }
     // endregion
 
-    // ClearCanvas
+    // region ClearCanvas
     private void clearCanvas() {
         View popupView = popupWindowBuilder.createPopupWindowView(this, WindowType.ClearCanvas);
         PopupWindow popupWindow = popupWindowBuilder.createPopupWindow(WindowType.ClearCanvas);
@@ -318,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private void showPopupMenu () {
         PopupMenu popupMenu = new PopupMenu(this ,
                 bottomNavigationView.findViewById(R.id.appBarMenu) , Gravity.CENTER);
-        popupMenu.inflate(R.menu.main_menu);
+        popupMenu.inflate(R.menu.popup_menu);
         popupMenu.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             int groupId = item.getGroupId();
@@ -357,15 +370,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         });
         popupMenu.show();
     }
-
-    DialogInterface.OnClickListener dialogMainOnClickListener = (dialog , which) -> {
-        // ListView listView = ((AlertDialog) dialog).getListView();
-        if (DialogScreenBuilder.gID == 1) {
-            if (which == Dialog.BUTTON_NEGATIVE) {
-                sendPic();
-            }
-        }
-    };
     // endregion
 
     // region FAB popupWindow

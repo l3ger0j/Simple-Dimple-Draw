@@ -12,8 +12,8 @@ import java.util.List;
 
 public class SpecialPath extends Path implements Serializable {
 
+    private static final long serialVersionUID = -7642039629858339221L;
     private final List<Action> actions = new LinkedList<>();
-    private static final long serialVersionUID = 101L;
 
     private void readObject(@NonNull ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();

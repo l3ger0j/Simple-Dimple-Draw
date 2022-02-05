@@ -26,4 +26,5 @@
     <string name="close_menu">Close menu</string>
     <string name="set_background_color">Set background color</string>
     <string name="clear_canvas">Clear canvas</string>
+    <string name="settings">Settings</string>
 </resources>
