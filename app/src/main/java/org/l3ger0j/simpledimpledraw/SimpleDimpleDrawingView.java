@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
@@ -20,42 +19,22 @@ import androidx.annotation.NonNull;
 
 public class SimpleDimpleDrawingView extends View {
 
-    public int paintColor = Color.BLACK;
-    public DrawPaint drawPaint;
+    int id = 0;
+    int active = 0;
+
+    private DrawPaint drawPaint;
     static Bitmap myCanvasBitmap;
     public Canvas drawCanvas;
     private final Matrix identityMatrix = new Matrix();
     public SpecialPath specialPath;
     public SpecialPath clearPath;
 
-    int stroke = 30;
-    int id = 0;
-    int active = 0;
-
-    public SimpleDimpleDrawingView(Context context , AttributeSet attributeSet) {
-        super(context, attributeSet);
-        init();
-        setupPaint();
+    public static Bitmap getCanvasBitmap(){
+        return myCanvasBitmap;
     }
 
-    private void init() {
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-
-        drawPaint = new DrawPaint();
-        drawCanvas = new Canvas();
-        specialPath = new SpecialPath();
-        clearPath = new SpecialPath();
-    }
-
-    @Override
-    protected void onDraw(@NonNull Canvas canvas) {
-        drawCanvas.drawPath(specialPath, drawPaint);
-        if (id == 1) {
-            drawCanvas.drawPath(clearPath, drawPaint);
-        }
-        canvas.drawBitmap(myCanvasBitmap, identityMatrix, null);
-        setupPaint();
+    public void setDrawPaint(DrawPaint drawPaint) {
+        this.drawPaint = drawPaint;
     }
 
     public void eraseCanvas (@NonNull PorterDuffXfermode porterDuffXfermode, View v) {
@@ -79,6 +58,30 @@ public class SimpleDimpleDrawingView extends View {
         specialPath.reset();
         clearPath.reset();
         invalidate();
+    }
+
+    public SimpleDimpleDrawingView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        init();
+    }
+
+    private void init() {
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+
+        drawPaint = new DrawPaint();
+        drawCanvas = new Canvas();
+        specialPath = new SpecialPath();
+        clearPath = new SpecialPath();
+    }
+
+    @Override
+    protected void onDraw(@NonNull Canvas canvas) {
+        drawCanvas.drawPath(specialPath, drawPaint);
+        if (id == 1) {
+            drawCanvas.drawPath(clearPath, drawPaint);
+        }
+        canvas.drawBitmap(myCanvasBitmap, identityMatrix, null);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -123,19 +126,5 @@ public class SimpleDimpleDrawingView extends View {
         drawCanvas.setBitmap(myCanvasBitmap);
 
         setMeasuredDimension(w, h);
-    }
-
-    public static Bitmap getCanvasBitmap(){
-
-        return myCanvasBitmap;
-    }
-
-    private void setupPaint() {
-        drawPaint.setColor(paintColor);
-        drawPaint.setAntiAlias(true);
-        drawPaint.setStrokeWidth(stroke);
-        drawPaint.setStyle(Paint.Style.STROKE);
-        drawPaint.setStrokeJoin(Paint.Join.ROUND);
-        drawPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 }

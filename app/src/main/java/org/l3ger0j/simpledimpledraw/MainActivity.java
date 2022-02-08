@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private ToggleButton toggleButton;
     // endregion
 
+    private DrawPaint drawPaint;
     private AlertDialog alertDialog;
     private TextView textView;
     private final PopupWindowBuilder popupWindowBuilder = new PopupWindowBuilder();
@@ -75,7 +76,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         super.onCreate(savedInstanceState);
 
         // ViewBinding activity_main => ActivityMainBinding
-        org.l3ger0j.simpledimpledraw.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        org.l3ger0j.simpledimpledraw.databinding.ActivityMainBinding binding =
+                ActivityMainBinding.inflate(getLayoutInflater());
 
         simpleDimpleDrawingView = binding.simpleDrawingView;
         shapeManager = binding.shapeManager;
@@ -92,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 showPopupMenu();
             }
         });
+
+        drawPaint = new DrawPaint();
+        simpleDimpleDrawingView.setDrawPaint(drawPaint);
 
         floatingActionButton = binding.fab;
         circleHiddenMenuButton = binding.fabHiddenMenu;
@@ -170,21 +175,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             } else if (v.getId() == R.id.fabEraser) {
                 PorterDuffXfermode porterDuffXfermode =
                         new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-                if (simpleDimpleDrawingView.drawPaint.getXfermode() == null) {
-                    simpleDimpleDrawingView.drawPaint.setXfermode(porterDuffXfermode);
-                    simpleDimpleDrawingView.specialPath.reset();
-                    simpleDimpleDrawingView.clearPath.reset();
-                    simpleDimpleDrawingView.id = 1;
-                    v.setRotation(180);
-                } else {
-                    simpleDimpleDrawingView.drawPaint.setXfermode(null);
-                    simpleDimpleDrawingView.specialPath.reset();
-                    simpleDimpleDrawingView.clearPath.reset();
-                    simpleDimpleDrawingView.id = 0;
-                    v.setRotation(0);
-                }
+                simpleDimpleDrawingView.eraseCanvas(porterDuffXfermode, v);
             } else if (v.getId() == R.id.fabClearCanvas) {
-                simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
+                simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT ,
+                        PorterDuff.Mode.CLEAR);
                 simpleDimpleDrawingView.specialPath.reset();
                 simpleDimpleDrawingView.clearPath.reset();
                 simpleDimpleDrawingView.invalidate();
@@ -204,23 +198,21 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             shapeManager.mCropRect.centerX(),
                             shapeManager.mCropRect.centerY(),
                             shapeManager.radiusRect,
-                            simpleDimpleDrawingView.drawPaint);
+                            drawPaint);
                     simpleDimpleDrawingView.id = 0;
                     shapeManager.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.VISIBLE);
                     floatingActionButton.show();
                     toggleButton.setVisibility(View.GONE);
                 } else if (shapeManager.selectShape == 2) {
-                    simpleDimpleDrawingView.drawCanvas.drawRect(rectF ,
-                            simpleDimpleDrawingView.drawPaint);
+                    simpleDimpleDrawingView.drawCanvas.drawRect(rectF, drawPaint);
                     simpleDimpleDrawingView.id = 0;
                     shapeManager.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.VISIBLE);
                     floatingActionButton.show();
                     toggleButton.setVisibility(View.GONE);
                 } else if (shapeManager.selectShape == 3) {
-                    simpleDimpleDrawingView.drawCanvas.drawOval(rectF ,
-                            simpleDimpleDrawingView.drawPaint);
+                    simpleDimpleDrawingView.drawCanvas.drawOval(rectF, drawPaint);
                     simpleDimpleDrawingView.id = 0;
                     shapeManager.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.VISIBLE);
@@ -233,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 floatingActionButton.setRippleColor(color);
                 simpleDimpleDrawingView.id = 0;
                 showMinSettingDrawWindow();
-                simpleDimpleDrawingView.drawPaint.setXfermode(null);
+                drawPaint.setXfermode(null);
                 simpleDimpleDrawingView.specialPath.reset();
                 simpleDimpleDrawingView.clearPath.reset();
                 simpleDimpleDrawingView.id = 0;
@@ -411,8 +403,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         seekBar.setOnSeekBarChangeListener(this);
 
         textView = popupView.findViewById(R.id.textView);
-        textView.setText(String.valueOf(simpleDimpleDrawingView.stroke));
-        seekBar.setProgress(simpleDimpleDrawingView.stroke);
+        textView.setText(String.valueOf(drawPaint.getStrokeWidth()));
+        seekBar.setProgress((int) drawPaint.getStrokeWidth());
 
         ImageButton turnMoveDialog = popupView.findViewById(R.id.turnMoveDialog);
         turnMoveDialog.setOnClickListener(v -> {
@@ -438,8 +430,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     }
 
     @Override
-    public void onStopTrackingTouch(@NonNull SeekBar seekBar) {
-        simpleDimpleDrawingView.stroke = seekBar.getProgress();
+    public void onStopTrackingTouch(@NonNull SeekBar seekBar) { 
+        drawPaint.setStrokeWidth(seekBar.getProgress());
         simpleDimpleDrawingView.specialPath.rewind();
     }
     // endregion
@@ -480,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             ColorPickerDialog.newBuilder()
                     .setDialogId(id)
                     .setDialogTitle(R.string.color_drawing)
-                    .setColor(simpleDimpleDrawingView.paintColor)
+                    .setColor(drawPaint.getColor())
                     .setDialogType(ColorPickerDialog.TYPE_PRESETS)
                     .setAllowCustom(true)
                     .setAllowPresets(true)
@@ -495,9 +487,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             simpleDimpleDrawingView.setBackgroundColor(color);
             simpleDimpleDrawingView.invalidate();
         } else if (dialogId == 2) {
-            simpleDimpleDrawingView.paintColor = color;
+            drawPaint.setColor(color);
             simpleDimpleDrawingView.specialPath = new SpecialPath();
-            simpleDimpleDrawingView.drawPaint.setXfermode(null);
+            drawPaint.setXfermode(null);
             simpleDimpleDrawingView.clearPath.reset();
             simpleDimpleDrawingView.id = 0;
             simpleDimpleDrawingView.invalidate();
