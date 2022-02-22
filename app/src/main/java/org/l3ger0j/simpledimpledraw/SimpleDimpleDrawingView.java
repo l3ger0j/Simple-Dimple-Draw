@@ -14,8 +14,11 @@ import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
 
 public class SimpleDimpleDrawingView extends View {
 
@@ -29,6 +32,9 @@ public class SimpleDimpleDrawingView extends View {
     public SpecialPath specialPath;
     public SpecialPath clearPath;
 
+    private final ArrayList<SpecialPath> paths = new ArrayList<>();
+    private final ArrayList<SpecialPath> undo = new ArrayList<>();
+
     public static Bitmap getCanvasBitmap(){
         return myCanvasBitmap;
     }
@@ -40,14 +46,10 @@ public class SimpleDimpleDrawingView extends View {
     public void eraseCanvas (@NonNull PorterDuffXfermode porterDuffXfermode, View v) {
         if (drawPaint.getXfermode() == null) {
             drawPaint.setXfermode(porterDuffXfermode);
-            specialPath.reset();
-            clearPath.reset();
             id = 1;
             v.setRotation(180);
         } else {
             drawPaint.setXfermode(null);
-            specialPath.reset();
-            clearPath.reset();
             id = 0;
             v.setRotation(0);
         }
@@ -55,9 +57,25 @@ public class SimpleDimpleDrawingView extends View {
 
     public void clearCanvas () {
         drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
-        specialPath.reset();
-        clearPath.reset();
+        paths.clear();
+        undo.clear();
         invalidate();
+    }
+
+    public void redoPath () {
+        if (undo.size()>0) {
+            paths.add(undo.remove(undo.size()-1));
+        } else {
+            Toast.makeText(getContext() , "EMPTY REDO" , Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void undoPath () {
+        if (paths.size()>0){
+            undo.add(paths.remove(paths.size()-1));
+        } else {
+            Toast.makeText(getContext() , "EMPTY UNDO" , Toast.LENGTH_SHORT).show();
+        }
     }
 
     public SimpleDimpleDrawingView(Context context, AttributeSet attributeSet) {
@@ -73,14 +91,21 @@ public class SimpleDimpleDrawingView extends View {
         drawCanvas = new Canvas();
         specialPath = new SpecialPath();
         clearPath = new SpecialPath();
+        paths.add(specialPath);
     }
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
+        drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
         drawCanvas.drawPath(specialPath, drawPaint);
         if (id == 1) {
             drawCanvas.drawPath(clearPath, drawPaint);
         }
+
+        for (SpecialPath p : paths) {
+            canvas.drawPath(p, drawPaint);
+        }
+
         canvas.drawBitmap(myCanvasBitmap, identityMatrix, null);
     }
 
@@ -95,7 +120,8 @@ public class SimpleDimpleDrawingView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 specialPath.moveTo(pointX , pointY);
-                clearPath.moveTo(pointX, pointY);
+                // clearPath.moveTo(pointX, pointY);
+                invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (active == 0) {
@@ -111,6 +137,13 @@ public class SimpleDimpleDrawingView extends View {
                     specialPath.lineTo(pointX , pointY);
                 }
                 break;
+            case MotionEvent.ACTION_UP:
+                specialPath.lineTo(pointX, pointY);
+                drawCanvas.drawPath(specialPath, drawPaint);
+                paths.add(specialPath);
+                specialPath = new SpecialPath();
+                invalidate();
+                break;
         }
         postInvalidate();
         return true;
@@ -118,7 +151,6 @@ public class SimpleDimpleDrawingView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
         int w = MeasureSpec.getSize(widthMeasureSpec);
         int h = MeasureSpec.getSize(heightMeasureSpec);
 

@@ -177,11 +177,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
                 simpleDimpleDrawingView.eraseCanvas(porterDuffXfermode, v);
             } else if (v.getId() == R.id.fabClearCanvas) {
-                simpleDimpleDrawingView.drawCanvas.drawColor(Color.TRANSPARENT ,
-                        PorterDuff.Mode.CLEAR);
-                simpleDimpleDrawingView.specialPath.reset();
-                simpleDimpleDrawingView.clearPath.reset();
-                simpleDimpleDrawingView.invalidate();
+                simpleDimpleDrawingView.clearCanvas();
             } else if (v.getId() == R.id.fabCloseMenu) {
                 bottomNavigationView.setVisibility(View.VISIBLE);
                 floatingActionButton.show();
@@ -308,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         popupWindow.showAsDropDown(bottomNavigationView.
                 findViewById(R.id.appBarClear), 0, -370);
 
+        popupView.findViewById(R.id.eraser).setEnabled(false);
         popupView.findViewById(R.id.eraser).setOnClickListener(v -> {
             PorterDuffXfermode porterDuffXfermode =
                     new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
@@ -405,6 +402,18 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         textView = popupView.findViewById(R.id.textView);
         textView.setText(String.valueOf(drawPaint.getStrokeWidth()));
         seekBar.setProgress((int) drawPaint.getStrokeWidth());
+
+        ImageButton undoButton = popupView.findViewById(R.id.undoButton);
+        undoButton.setOnClickListener(v -> {
+            simpleDimpleDrawingView.undoPath();
+            simpleDimpleDrawingView.invalidate();
+        });
+
+        ImageButton redoButton = popupView.findViewById(R.id.redoButton);
+        redoButton.setOnClickListener(v -> {
+            simpleDimpleDrawingView.redoPath();
+            simpleDimpleDrawingView.invalidate();
+        });
 
         ImageButton turnMoveDialog = popupView.findViewById(R.id.turnMoveDialog);
         turnMoveDialog.setOnClickListener(v -> {

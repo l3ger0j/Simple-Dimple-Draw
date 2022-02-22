@@ -38,4 +38,30 @@
         android:minWidth="48dp"
         android:minHeight="48dp"
         app:srcCompat="@drawable/baseline_push_pin_24" />
+
+    <ImageButton
+        android:id="@+id/redoButton"
+        android:layout_width="68dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="35dp"
+        android:layout_marginEnd="75dp"
+        android:contentDescription="@string/redo_button"
+        android:minHeight="48dp"
+        android:rotationY="180"
+        app:srcCompat="@drawable/baseline_undo_24" />
+
+    <ImageButton
+        android:id="@+id/undoButton"
+        android:layout_width="68dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="75dp"
+        android:layout_marginTop="35dp"
+        android:contentDescription="@string/undo_button"
+        android:minHeight="48dp"
+        app:srcCompat="@drawable/baseline_undo_24" />
+
 </RelativeLayout>
