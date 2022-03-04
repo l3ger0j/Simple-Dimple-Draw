@@ -9,9 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -188,28 +185,20 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 fabClearCanvas.setVisibility(View.GONE);
                 fabCloseMenu.setVisibility(View.GONE);
             } else if (v.getId() == R.id.toggleButton) {
-                RectF rectF = new RectF(shapeManager.mCropRect);
                 if (shapeManager.selectShape == 1) {
-                    simpleDimpleDrawingView.drawCanvas.drawCircle(
-                            shapeManager.mCropRect.centerX(),
-                            shapeManager.mCropRect.centerY(),
-                            shapeManager.radiusRect,
-                            drawPaint);
-                    simpleDimpleDrawingView.id = 0;
+                    simpleDimpleDrawingView.drawShape(0, shapeManager);
                     shapeManager.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.VISIBLE);
                     floatingActionButton.show();
                     toggleButton.setVisibility(View.GONE);
                 } else if (shapeManager.selectShape == 2) {
-                    simpleDimpleDrawingView.drawCanvas.drawRect(rectF, drawPaint);
-                    simpleDimpleDrawingView.id = 0;
+                    simpleDimpleDrawingView.drawShape(1, shapeManager);
                     shapeManager.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.VISIBLE);
                     floatingActionButton.show();
                     toggleButton.setVisibility(View.GONE);
                 } else if (shapeManager.selectShape == 3) {
-                    simpleDimpleDrawingView.drawCanvas.drawOval(rectF, drawPaint);
-                    simpleDimpleDrawingView.id = 0;
+                    simpleDimpleDrawingView.drawShape(2, shapeManager);
                     shapeManager.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.VISIBLE);
                     floatingActionButton.show();
@@ -219,12 +208,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 Random rnd = new Random();
                 int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
                 floatingActionButton.setRippleColor(color);
-                simpleDimpleDrawingView.id = 0;
                 showMinSettingDrawWindow();
                 drawPaint.setXfermode(null);
-                simpleDimpleDrawingView.specialPath.reset();
-                simpleDimpleDrawingView.clearPath.reset();
-                simpleDimpleDrawingView.id = 0;
             }
         }
     };
@@ -331,27 +316,25 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     shapeManager.setVisibility(View.VISIBLE);
                     hideAppBarMenu(2);
                     toggleButton.setVisibility(View.VISIBLE);
-                    simpleDimpleDrawingView.id = 1;
                 } else if (itemId == R.id.addRectangle) {
                     shapeManager.selectShape = 2;
                     toggleButton.setChecked(true);
                     shapeManager.setVisibility(View.VISIBLE);
                     hideAppBarMenu(2);
                     toggleButton.setVisibility(View.VISIBLE);
-                    simpleDimpleDrawingView.id = 2;
                 } else if (itemId == R.id.addOval) {
                     shapeManager.selectShape = 3;
                     toggleButton.setChecked(true);
                     shapeManager.setVisibility(View.VISIBLE);
                     hideAppBarMenu(2);
                     toggleButton.setVisibility(View.VISIBLE);
-                    simpleDimpleDrawingView.id = 3;
                 }
             } else if (groupId == R.id.groupSettings) {
                 if (itemId == R.id.hide) {
                     hideAppBarMenu(1);
                 } else if (itemId == R.id.about) {
-                    alertDialog = DialogScreenBuilder.createAlertDialog(MainActivity.this , DialogType.AboutDialog);
+                    alertDialog = DialogScreenBuilder.createAlertDialog(MainActivity.this ,
+                            DialogType.AboutDialog);
                     alertDialog.show();
                 }
             }
@@ -441,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     @Override
     public void onStopTrackingTouch(@NonNull SeekBar seekBar) { 
         drawPaint.setStrokeWidth(seekBar.getProgress());
-        simpleDimpleDrawingView.specialPath.rewind();
+        simpleDimpleDrawingView.invalidate();
     }
     // endregion
 
@@ -457,21 +440,12 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         backColor.setOnClickListener(v1 -> createColorPickerDialog(1));
     }
 
-    public int getBackgroundColor () {
-        int color = Color.WHITE;
-        Drawable background = simpleDimpleDrawingView.getBackground();
-        if (background instanceof ColorDrawable)
-            color = ((ColorDrawable) background).getColor();
-
-        return color;
-    }
-
     private void createColorPickerDialog(int id) {
         if (id == 1) {
             ColorPickerDialog.newBuilder()
                     .setDialogId(id)
                     .setDialogTitle(R.string.color_background)
-                    .setColor(getBackgroundColor())
+                    .setColor(simpleDimpleDrawingView.getBackgroundColor())
                     .setDialogType(ColorPickerDialog.TYPE_PRESETS)
                     .setAllowCustom(true)
                     .setAllowPresets(true)
@@ -494,14 +468,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     public void onColorSelected(int dialogId , int color) {
         if (dialogId == 1) {
             simpleDimpleDrawingView.setBackgroundColor(color);
-            simpleDimpleDrawingView.invalidate();
         } else if (dialogId == 2) {
-            drawPaint.setColor(color);
-            simpleDimpleDrawingView.specialPath = new SpecialPath();
-            drawPaint.setXfermode(null);
-            simpleDimpleDrawingView.clearPath.reset();
-            simpleDimpleDrawingView.id = 0;
-            simpleDimpleDrawingView.invalidate();
+            simpleDimpleDrawingView.colorChanged(color);
         }
     }
 

@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId "org.l3ger0j.simpledimpledraw"
         minSdk 21
-        targetSdk 30
+        targetSdk 31
         versionCode 10
-        versionName "1.7.0-rc.4"
+        versionName "1.7.1-rc.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

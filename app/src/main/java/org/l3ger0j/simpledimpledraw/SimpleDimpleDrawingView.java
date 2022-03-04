@@ -9,8 +9,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,21 +26,26 @@ import java.util.ArrayList;
 
 public class SimpleDimpleDrawingView extends View {
 
-    int id = 0;
-    int active = 0;
-
     private DrawPaint drawPaint;
     static Bitmap myCanvasBitmap;
     public Canvas drawCanvas;
     private final Matrix identityMatrix = new Matrix();
-    public SpecialPath specialPath;
-    public SpecialPath clearPath;
+    private SpecialPath specialPath;
 
     private final ArrayList<SpecialPath> paths = new ArrayList<>();
     private final ArrayList<SpecialPath> undo = new ArrayList<>();
 
     public static Bitmap getCanvasBitmap(){
         return myCanvasBitmap;
+    }
+
+    public int getBackgroundColor() {
+        int color = Color.WHITE;
+        Drawable background = getBackground();
+        if (background instanceof ColorDrawable)
+            color = ((ColorDrawable) background).getColor();
+        invalidate();
+        return color;
     }
 
     public void setDrawPaint(DrawPaint drawPaint) {
@@ -46,11 +55,9 @@ public class SimpleDimpleDrawingView extends View {
     public void eraseCanvas (@NonNull PorterDuffXfermode porterDuffXfermode, View v) {
         if (drawPaint.getXfermode() == null) {
             drawPaint.setXfermode(porterDuffXfermode);
-            id = 1;
             v.setRotation(180);
         } else {
             drawPaint.setXfermode(null);
-            id = 0;
             v.setRotation(0);
         }
     }
@@ -78,9 +85,46 @@ public class SimpleDimpleDrawingView extends View {
         }
     }
 
+    public void colorChanged (int color) {
+        drawPaint.setColor(color);
+        invalidate();
+    }
+
     public SimpleDimpleDrawingView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         init();
+    }
+
+    public void drawShape (int id , @NonNull ShapeManager shapeManager) {
+        RectF mRectF = new RectF(shapeManager.mCropRect);
+        switch (id) {
+            case 0:
+                specialPath.addCircle(
+                        mRectF.centerX(),
+                        mRectF.centerY(),
+                        shapeManager.radiusRect,
+                        Path.Direction.CW);
+                paths.add(specialPath);
+                specialPath = new SpecialPath();
+                invalidate();
+                break;
+            case 1:
+                specialPath.addRect(
+                        mRectF,
+                        Path.Direction.CW);
+                paths.add(specialPath);
+                specialPath = new SpecialPath();
+                invalidate();
+                break;
+            case 2:
+                specialPath.addOval(
+                        mRectF,
+                        Path.Direction.CW);
+                paths.add(specialPath);
+                specialPath = new SpecialPath();
+                invalidate();
+                break;
+        }
     }
 
     private void init() {
@@ -90,7 +134,6 @@ public class SimpleDimpleDrawingView extends View {
         drawPaint = new DrawPaint();
         drawCanvas = new Canvas();
         specialPath = new SpecialPath();
-        clearPath = new SpecialPath();
         paths.add(specialPath);
     }
 
@@ -98,9 +141,6 @@ public class SimpleDimpleDrawingView extends View {
     protected void onDraw(@NonNull Canvas canvas) {
         drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
         drawCanvas.drawPath(specialPath, drawPaint);
-        if (id == 1) {
-            drawCanvas.drawPath(clearPath, drawPaint);
-        }
 
         for (SpecialPath p : paths) {
             canvas.drawPath(p, drawPaint);
@@ -120,29 +160,15 @@ public class SimpleDimpleDrawingView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 specialPath.moveTo(pointX , pointY);
-                // clearPath.moveTo(pointX, pointY);
-                invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (active == 0) {
-                    switch (id) {
-                        case 0:
-                            specialPath.lineTo(pointX , pointY);
-                            break;
-                        case 1:
-                            clearPath.lineTo(pointX , pointY);
-                            break;
-                    }
-                } else if (id == 0) {
-                    specialPath.lineTo(pointX , pointY);
-                }
+                specialPath.lineTo(pointX , pointY);
                 break;
             case MotionEvent.ACTION_UP:
                 specialPath.lineTo(pointX, pointY);
                 drawCanvas.drawPath(specialPath, drawPaint);
                 paths.add(specialPath);
                 specialPath = new SpecialPath();
-                invalidate();
                 break;
         }
         postInvalidate();
