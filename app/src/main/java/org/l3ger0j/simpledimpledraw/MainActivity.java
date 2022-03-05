@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -170,9 +168,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             } else if (v.getId() == R.id.fabSetBackgroundColor) {
                 createColorPickerDialog(1);
             } else if (v.getId() == R.id.fabEraser) {
-                PorterDuffXfermode porterDuffXfermode =
-                        new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-                simpleDimpleDrawingView.eraseCanvas(porterDuffXfermode, v);
+                simpleDimpleDrawingView.eraseCanvas(v);
             } else if (v.getId() == R.id.fabClearCanvas) {
                 simpleDimpleDrawingView.clearCanvas();
             } else if (v.getId() == R.id.fabCloseMenu) {
@@ -289,12 +285,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         popupWindow.showAsDropDown(bottomNavigationView.
                 findViewById(R.id.appBarClear), 0, -370);
 
-        popupView.findViewById(R.id.eraser).setEnabled(false);
-        popupView.findViewById(R.id.eraser).setOnClickListener(v -> {
-            PorterDuffXfermode porterDuffXfermode =
-                    new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-            simpleDimpleDrawingView.eraseCanvas(porterDuffXfermode, v);
-        });
+        popupView.findViewById(R.id.eraser).setOnClickListener(v ->
+                simpleDimpleDrawingView.eraseCanvas(v));
 
         popupView.findViewById(R.id.clearAll).setOnClickListener(v ->
                 simpleDimpleDrawingView.clearCanvas());
@@ -423,8 +415,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
     @Override
     public void onStopTrackingTouch(@NonNull SeekBar seekBar) { 
-        drawPaint.setStrokeWidth(seekBar.getProgress());
-        simpleDimpleDrawingView.invalidate();
+        simpleDimpleDrawingView.setStroke(seekBar.getProgress());
     }
     // endregion
 
@@ -469,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         if (dialogId == 1) {
             simpleDimpleDrawingView.setBackgroundColor(color);
         } else if (dialogId == 2) {
-            simpleDimpleDrawingView.colorChanged(color);
+            simpleDimpleDrawingView.setColor(color);
         }
     }
 
