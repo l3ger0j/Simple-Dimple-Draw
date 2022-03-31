@@ -168,7 +168,13 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             } else if (v.getId() == R.id.fabSetBackgroundColor) {
                 createColorPickerDialog(1);
             } else if (v.getId() == R.id.fabEraser) {
-                simpleDimpleDrawingView.eraseCanvas(v);
+                if (simpleDimpleDrawingView.isEraserOn()) {
+                    simpleDimpleDrawingView.eraseCanvas(true);
+                    v.setRotation(180);
+                } else {
+                    simpleDimpleDrawingView.eraseCanvas(false);
+                    v.setRotation(0);
+                }
             } else if (v.getId() == R.id.fabClearCanvas) {
                 simpleDimpleDrawingView.clearCanvas();
             } else if (v.getId() == R.id.fabCloseMenu) {
@@ -205,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
                 floatingActionButton.setRippleColor(color);
                 showMinSettingDrawWindow();
-                drawPaint.setXfermode(null);
             }
         }
     };
@@ -230,14 +235,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         popupView.findViewById(R.id.saveCanvas).setOnClickListener(v -> {
             try {
                 File extStorage = getExternalFilesDir(null);
-
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault());
-
                 String fileName = "PIC_"+sdf.format(date)+".png";
-
                 path = extStorage.getAbsolutePath() + "/" + fileName;
-
                 File myFile = new File(path);
                 FileOutputStream fOut = new FileOutputStream(myFile);
                 SimpleDimpleDrawingView.getCanvasBitmap().compress(Bitmap.CompressFormat.PNG,90,fOut);
@@ -285,8 +286,15 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         popupWindow.showAsDropDown(bottomNavigationView.
                 findViewById(R.id.appBarClear), 0, -370);
 
-        popupView.findViewById(R.id.eraser).setOnClickListener(v ->
-                simpleDimpleDrawingView.eraseCanvas(v));
+        popupView.findViewById(R.id.eraser).setOnClickListener(v -> {
+            if (simpleDimpleDrawingView.isEraserOn()) {
+                simpleDimpleDrawingView.eraseCanvas(true);
+                v.setRotation(180);
+            } else {
+                simpleDimpleDrawingView.eraseCanvas(false);
+                v.setRotation(0);
+            }
+        });
 
         popupView.findViewById(R.id.clearAll).setOnClickListener(v ->
                 simpleDimpleDrawingView.clearCanvas());
