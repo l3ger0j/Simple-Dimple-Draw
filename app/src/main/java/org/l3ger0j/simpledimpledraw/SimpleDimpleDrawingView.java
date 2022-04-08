@@ -140,6 +140,7 @@ public class SimpleDimpleDrawingView extends View {
     public void redoPath () {
         if (undo.size()>0) {
             paths.add(undo.remove(undo.size()-1));
+            undo.trimToSize();
         } else {
             Toast.makeText(getContext() , "EMPTY REDO" , Toast.LENGTH_SHORT).show();
         }
@@ -148,6 +149,7 @@ public class SimpleDimpleDrawingView extends View {
     public void undoPath () {
         if (paths.size()>0){
             undo.add(paths.remove(paths.size()-1));
+            paths.trimToSize();
         } else {
             Toast.makeText(getContext() , "EMPTY UNDO" , Toast.LENGTH_SHORT).show();
         }
