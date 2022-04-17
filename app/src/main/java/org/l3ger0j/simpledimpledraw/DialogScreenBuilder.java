@@ -3,6 +3,7 @@ package org.l3ger0j.simpledimpledraw;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,9 +17,14 @@ enum DialogType {
 
 public class DialogScreenBuilder {
     private static DialogInterface.OnClickListener onClickListener;
+    private static Bitmap imageBitmap = null;
 
     public void setOnClickListener (DialogInterface.OnClickListener onClickListener) {
         DialogScreenBuilder.onClickListener = onClickListener;
+    }
+
+    public void setImageBitmap (Bitmap bitmap) {
+        imageBitmap = bitmap;
     }
 
     public static AlertDialog createAlertDialog (Activity activity , @NonNull DialogType dialogType) {
@@ -37,7 +43,7 @@ public class DialogScreenBuilder {
                 return builder.create();
             case CaptureDialog:
                 builder.setTitle(R.string.captureDialog);
-                imageView.setImageBitmap(SimpleDimpleDrawingView.getCanvasBitmap());
+                imageView.setImageBitmap(imageBitmap);
                 imageView.setLayoutParams(layoutParams);
                 dialogLayout.setOrientation(LinearLayout.VERTICAL);
                 dialogLayout.addView(imageView);

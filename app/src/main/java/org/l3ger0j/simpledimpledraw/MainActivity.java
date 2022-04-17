@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 path = extStorage.getAbsolutePath() + "/" + fileName;
                 File myFile = new File(path);
                 FileOutputStream fOut = new FileOutputStream(myFile);
-                SimpleDimpleDrawingView.getCanvasBitmap().compress(Bitmap.CompressFormat.PNG,90,fOut);
+                simpleDimpleDrawingView.getCanvasBitmap().compress(Bitmap.CompressFormat.PNG,90,fOut);
                 fOut.flush();
                 fOut.close();
                 uriBitmap = FileProvider.getUriForFile(
@@ -258,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
             Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_LONG).show();
             DialogScreenBuilder dialogScreenBuilder = new DialogScreenBuilder();
+            dialogScreenBuilder.setImageBitmap(this.simpleDimpleDrawingView.getCanvasBitmap());
             dialogScreenBuilder.setOnClickListener(mainDialogOnClickList(1));
             alertDialog = DialogScreenBuilder.createAlertDialog(this , DialogType.CaptureDialog);
             alertDialog.show();

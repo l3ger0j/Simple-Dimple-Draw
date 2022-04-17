@@ -30,7 +30,7 @@ public class SimpleDimpleDrawingView extends View {
 
     private DrawPaint drawPaint;
     private static Bitmap myCanvasBitmap;
-    public Canvas drawCanvas;
+    private Canvas drawCanvas;
     private final Matrix identityMatrix = new Matrix();
     private SpecialPath specialPath;
 
@@ -47,8 +47,11 @@ public class SimpleDimpleDrawingView extends View {
     private final Xfermode mXfermode = null;
     private boolean eraserOn = false;
 
-    public static Bitmap getCanvasBitmap(){
-        return myCanvasBitmap;
+    public Bitmap getCanvasBitmap(){
+        this.setDrawingCacheEnabled(false);
+        this.setDrawingCacheEnabled(true);
+
+        return Bitmap.createBitmap(this.getDrawingCache());
     }
 
     public int getBackgroundColor() {
@@ -163,6 +166,7 @@ public class SimpleDimpleDrawingView extends View {
     private void init() {
         setFocusable(true);
         setFocusableInTouchMode(true);
+        setBackgroundColor(Color.WHITE);
 
         drawPaint = new DrawPaint();
         drawCanvas = new Canvas();
@@ -174,14 +178,17 @@ public class SimpleDimpleDrawingView extends View {
         paths.add(specialPath);
     }
 
-    // FIXME: 01.04.2022
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
         drawCanvas.drawPath(specialPath, drawPaint);
         for (SpecialPath p : paths) {
-            drawPaint.setColor(colorsMap.get(p));
-            drawPaint.setStrokeWidth(strokeMap.get(p));
+            Integer currCnt = colorsMap.get(p);
+            int temp1 = currCnt == null ? Color.BLACK : currCnt;
+            drawPaint.setColor(temp1);
+            Float currCount = strokeMap.get(p);
+            float currCount1 = currCount == null ? 30 : currCount;
+            drawPaint.setStrokeWidth(currCount1);
             drawPaint.setXfermode(xfermodeMap.get(p));
             canvas.drawPath(p, drawPaint);
         }
@@ -219,7 +226,6 @@ public class SimpleDimpleDrawingView extends View {
         return true;
     }
 
-    // FIXME: 01.04.2022
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int w = MeasureSpec.getSize(widthMeasureSpec);

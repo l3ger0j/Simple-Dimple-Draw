@@ -4,7 +4,7 @@
     package="org.l3ger0j.simpledimpledraw">
 
     <application
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:installLocation="auto"
