@@ -425,6 +425,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     @Override
     public void onStopTrackingTouch(@NonNull SeekBar seekBar) { 
         simpleDimpleDrawingView.setStroke(seekBar.getProgress());
+        shapeManager.mStrokeWidth = seekBar.getProgress();
     }
     // endregion
 
@@ -468,8 +469,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     public void onColorSelected(int dialogId , int color) {
         if (dialogId == 1) {
             simpleDimpleDrawingView.setBackgroundColor(color);
+            popupWindowBuilder.setBackgroundColor(color);
         } else if (dialogId == 2) {
             simpleDimpleDrawingView.setColor(color);
+            shapeManager.mStrokeColor = color;
         }
     }
 

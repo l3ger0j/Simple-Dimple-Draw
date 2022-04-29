@@ -3,28 +3,31 @@ package org.l3ger0j.simpledimpledraw;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ShapeManager extends View {
 
-    Point[] points = new Point[4];
+    final Point[] points = new Point[4];
     int groupId = -1;
     private final ArrayList<RoundBall> cornballs = new ArrayList<>();
 
-    public final int mStrokeColor = Color.BLACK;
+    public int mStrokeColor = Color.BLACK;
+    public int mStrokeWidth = 10;
     public final int mFillColor = Color.TRANSPARENT;
     public final Rect mCropRect = new Rect();
 
@@ -74,7 +77,7 @@ public class ShapeManager extends View {
         balID = 2;
         groupId = 1;
         for (int i = 0; i < points.length; i++) {
-            cornballs.add(new RoundBall(getContext(), R.drawable.gray_circle, points[i], i));
+            cornballs.add(new RoundBall(getContext(), R.drawable.baseline_circle_24, points[i], i));
         }
     }
 
@@ -101,12 +104,9 @@ public class ShapeManager extends View {
         paint.setAntiAlias(true);
         paint.setDither(true);
         paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeWidth(5);
-
-        //draw stroke
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(mStrokeColor);
-        paint.setStrokeWidth(10);
+        paint.setStrokeWidth(mStrokeWidth);
 
         mCropRect.left = left + cornballs.get(0).getWidthOfBall() / 2;
         mCropRect.top = top + cornballs.get(0).getWidthOfBall() / 2;
@@ -225,15 +225,21 @@ public class ShapeManager extends View {
 }
 
 class RoundBall {
-    Bitmap bitmap;
-    Context mContext;
-    Point point;
-    int id;
+    final Bitmap bitmap;
+    final Drawable drawable;
+    final Canvas canvas;
+    final Context mContext;
+    final Point point;
+    final int id;
 
     public RoundBall(@NonNull Context context, int resourceId, Point point, int id) {
         this.id = id;
-        bitmap = BitmapFactory.decodeResource(context.getResources(),
-                resourceId);
+        drawable = ContextCompat.getDrawable(context, resourceId);
+        bitmap = Bitmap.createBitmap(Objects.requireNonNull(drawable).getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
         mContext = context;
         this.point = point;
     }

@@ -11,8 +11,8 @@ android {
         applicationId "org.l3ger0j.simpledimpledraw"
         minSdk 21
         targetSdk 32
-        versionCode 13
-        versionName "1.7.5-rc.4"
+        versionCode 14
+        versionName "1.7.6-rc.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
