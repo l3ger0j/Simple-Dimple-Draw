@@ -12,13 +12,6 @@ import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
 
-enum WindowType {
-    ColorSetting,
-    MinimalSetting,
-    ClearCanvas,
-    CaptureMenu
-}
-
 public class PopupWindowBuilder {
     private View popupView;
     private PopupWindow popupWindow;
@@ -33,16 +26,8 @@ public class PopupWindowBuilder {
         LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         switch (windowType) {
-            case ColorSetting:
-                popupView = layoutInflater.inflate(R.layout.popup_color_setting, linearLayout);
-                popupView.setBackgroundColor(mColor);
-                break;
             case MinimalSetting:
                 popupView = layoutInflater.inflate(R.layout.popup_fab, linearLayout);
-                popupView.setBackgroundColor(mColor);
-                break;
-            case ClearCanvas:
-                popupView = layoutInflater.inflate(R.layout.popup_clear, linearLayout);
                 popupView.setBackgroundColor(mColor);
                 break;
             case CaptureMenu:
@@ -56,9 +41,7 @@ public class PopupWindowBuilder {
 
     public PopupWindow createPopupWindow (@NonNull WindowType windowType) {
         switch (windowType) {
-            case ColorSetting:
             case MinimalSetting:
-            case ClearCanvas:
             case CaptureMenu:
                 popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT, true);

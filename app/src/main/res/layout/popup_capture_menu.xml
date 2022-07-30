@@ -11,14 +11,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        app:srcCompat="@drawable/baseline_save_24"
-        android:contentDescription="@string/appBarSave" />
+        android:contentDescription="@string/appBarSave"
+        android:minHeight="48dp"
+        app:srcCompat="@drawable/baseline_save_24" />
 
     <ImageButton
         android:id="@+id/shareCanvas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        app:srcCompat="@drawable/baseline_share_24"
-        android:contentDescription="@string/share" />
+        android:contentDescription="@string/share"
+        android:minHeight="48dp"
+        app:srcCompat="@drawable/baseline_share_24" />
 </LinearLayout>

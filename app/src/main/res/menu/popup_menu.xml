@@ -17,9 +17,6 @@
     <group
         android:id="@+id/groupSettings">
         <item
-            android:id="@+id/hide"
-            android:title="@string/hide_down_bar" />
-        <item
             android:id="@+id/about"
             android:title="@string/about" />
     </group>

@@ -10,11 +10,6 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-enum DialogType {
-    AboutDialog,
-    CaptureDialog,
-}
-
 public class DialogScreenBuilder {
     private static DialogInterface.OnClickListener onClickListener;
     private static Bitmap imageBitmap = null;
@@ -27,7 +22,7 @@ public class DialogScreenBuilder {
         imageBitmap = bitmap;
     }
 
-    public static AlertDialog createAlertDialog (Activity activity , @NonNull DialogType dialogType) {
+    public static AlertDialog createAlertDialog (Activity activity , DialogType dialogType) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         ImageView imageView = new ImageView(activity);
         LinearLayout dialogLayout = new LinearLayout(activity);
