@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -324,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         PopupWindow popupWindow = popupWindowBuilder.createPopupWindow(WindowType.MinimalSetting);
         popupWindow.showAtLocation(findViewById(R.id.fabSetSize),
                 Gravity.CENTER, posPopupWindow[0], posPopupWindow[1]);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         if (turnOnMove == 1) {
             popupView.setOnTouchListener(new View.OnTouchListener() {
