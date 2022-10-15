@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 
-public class ShapeManager extends View {
+public class ShapeBuilder extends View {
 
     final Point[] points = new Point[4];
     int groupId = -1;
@@ -27,22 +27,22 @@ public class ShapeManager extends View {
     public final int mFillColor = Color.TRANSPARENT;
     public final Rect mCropRect = new Rect();
 
-    int selectShape;
-    int radiusRect;
+    public int selectShape;
+    public int radiusRect;
     // array that holds the balls
     private int balID = 0;
     // variable to know what ball is being dragged
     Paint paint;
 
-    public ShapeManager(Context context) {
+    public ShapeBuilder(Context context) {
         this(context, null);
     }
 
-    public ShapeManager(Context context, AttributeSet attrs) {
-        this(context, attrs, -1);
+    public ShapeBuilder(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
     }
 
-    public ShapeManager(Context context, AttributeSet attrs, int defStyle) {
+    public ShapeBuilder(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
@@ -73,7 +73,7 @@ public class ShapeManager extends View {
         balID = 2;
         groupId = 1;
         for (int i = 0; i < points.length; i++) {
-            cornballs.add(new RoundBall(getContext(), R.drawable.baseline_circle_24, points[i], i));
+            cornballs.add(new RoundBall(getContext(), R.drawable.circle , points[i], i));
         }
     }
 

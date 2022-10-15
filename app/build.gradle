@@ -3,16 +3,17 @@ plugins {
 }
 
 def viewBind = true
+def dataBind = true
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "org.l3ger0j.simpledimpledraw"
         minSdk 21
         targetSdk 32
-        versionCode 161
-        versionName "1.1.1"
+        versionCode 162
+        versionName "1.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -31,6 +32,7 @@ android {
 
     buildFeatures() {
         viewBinding viewBind
+        dataBinding dataBind
     }
     namespace 'org.l3ger0j.simpledimpledraw'
 }
@@ -39,11 +41,11 @@ dependencies {
 
     implementation 'com.jaredrummler:colorpicker:1.1.0'
     implementation 'androidx.preference:preference:1.2.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.navigation:navigation-fragment:2.5.1'
-    implementation 'androidx.navigation:navigation-ui:2.5.1'
+    implementation 'androidx.navigation:navigation-fragment:2.5.2'
+    implementation 'androidx.navigation:navigation-ui:2.5.2'
     //noinspection GradleDynamicVersion
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

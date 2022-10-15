@@ -13,7 +13,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/appBarSave"
         android:minHeight="48dp"
-        app:srcCompat="@drawable/baseline_save_24" />
+        app:srcCompat="@drawable/save" />
 
     <ImageButton
         android:id="@+id/shareCanvas"
@@ -22,5 +22,5 @@
         android:layout_weight="1"
         android:contentDescription="@string/share"
         android:minHeight="48dp"
-        app:srcCompat="@drawable/baseline_share_24" />
+        app:srcCompat="@drawable/share" />
 </LinearLayout>

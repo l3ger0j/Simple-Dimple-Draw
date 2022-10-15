@@ -1,4 +1,4 @@
-package org.l3ger0j.simpledimpledraw;
+package org.l3ger0j.simpledimpledraw.model;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
+
+import org.l3ger0j.simpledimpledraw.R;
+import org.l3ger0j.simpledimpledraw.WindowType;
 
 public class PopupWindowBuilder {
     private View popupView;

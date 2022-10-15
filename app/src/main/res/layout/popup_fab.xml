@@ -44,6 +44,6 @@
         android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/baseline_push_pin_24" />
+        app:srcCompat="@drawable/push_pin" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

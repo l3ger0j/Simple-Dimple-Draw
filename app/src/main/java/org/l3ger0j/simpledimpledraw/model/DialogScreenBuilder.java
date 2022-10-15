@@ -1,14 +1,16 @@
-package org.l3ger0j.simpledimpledraw;
+package org.l3ger0j.simpledimpledraw.model;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
+import org.l3ger0j.simpledimpledraw.DialogType;
+import org.l3ger0j.simpledimpledraw.R;
 
 public class DialogScreenBuilder {
     private static DialogInterface.OnClickListener onClickListener;
@@ -22,10 +24,10 @@ public class DialogScreenBuilder {
         imageBitmap = bitmap;
     }
 
-    public static AlertDialog createAlertDialog (Activity activity , DialogType dialogType) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        ImageView imageView = new ImageView(activity);
-        LinearLayout dialogLayout = new LinearLayout(activity);
+    public static AlertDialog createAlertDialog (Context context, DialogType dialogType) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        ImageView imageView = new ImageView(context);
+        LinearLayout dialogLayout = new LinearLayout(context);
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);

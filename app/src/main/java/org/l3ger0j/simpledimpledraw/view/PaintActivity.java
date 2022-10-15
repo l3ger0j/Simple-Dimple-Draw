@@ -1,4 +1,4 @@
-package org.l3ger0j.simpledimpledraw;
+package org.l3ger0j.simpledimpledraw.view;
 
 import static android.graphics.Bitmap.Config;
 import static android.graphics.Bitmap.createBitmap;
@@ -22,11 +22,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import org.l3ger0j.simpledimpledraw.DrawPaint;
+import org.l3ger0j.simpledimpledraw.ShapeBuilder;
+import org.l3ger0j.simpledimpledraw.model.SpecialPath;
+import org.l3ger0j.simpledimpledraw.presenter.MainContract;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleDimpleDrawingView extends View {
+public class PaintActivity extends View implements MainContract.PaintActivity {
 
     private DrawPaint drawPaint;
     private static Bitmap myCanvasBitmap;
@@ -48,7 +53,6 @@ public class SimpleDimpleDrawingView extends View {
     public Bitmap getCanvasBitmap(){
         this.setDrawingCacheEnabled(false);
         this.setDrawingCacheEnabled(true);
-
         return Bitmap.createBitmap(this.getDrawingCache());
     }
 
@@ -61,10 +65,6 @@ public class SimpleDimpleDrawingView extends View {
         return color;
     }
 
-    public boolean isEraserOn() {
-        return !eraserOn;
-    }
-
     public void setDrawPaint(DrawPaint drawPaint) {
         this.drawPaint = drawPaint;
     }
@@ -74,9 +74,17 @@ public class SimpleDimpleDrawingView extends View {
         invalidate();
     }
 
+    public void setBackColor (int color) {
+        setBackgroundColor(color);
+    }
+
     public void setStroke (int stroke) {
         this.mStroke = stroke;
         invalidate();
+    }
+
+    public boolean isEraserOn() {
+        return !eraserOn;
     }
 
     public void eraseCanvas (boolean isEraserOn) {
@@ -98,7 +106,7 @@ public class SimpleDimpleDrawingView extends View {
         invalidate();
     }
 
-    public void drawShape (int id , @NonNull ShapeManager shapeManager) {
+    public void drawShape (int id , @NonNull ShapeBuilder shapeManager) {
         RectF mRectF = new RectF(shapeManager.mCropRect);
         switch (id) {
             case 0:
@@ -154,7 +162,11 @@ public class SimpleDimpleDrawingView extends View {
         }
     }
 
-    public SimpleDimpleDrawingView(Context context, AttributeSet attributeSet) {
+    public void invalidateView () {
+        this.invalidate();
+    }
+
+    public PaintActivity(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         init();
     }
