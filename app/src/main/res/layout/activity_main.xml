@@ -48,24 +48,31 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/custom_border"
+            android:visibility="@{mainActivity.isClickOnCloseTopMenu ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/cAddCircle"
+                android:onClick="@{mainActivity::addShape}"
+                android:visibility="@{mainActivity.isClickOnCloseTopMenu ? View.GONE : View.VISIBLE}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_circle" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/cAddRect"
+                android:onClick="@{mainActivity::addShape}"
+                android:visibility="@{mainActivity.isClickOnCloseTopMenu ? View.GONE : View.VISIBLE}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_rectangle" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/cAddOval"
+                android:onClick="@{mainActivity::addShape}"
+                android:visibility="@{mainActivity.isClickOnCloseTopMenu ? View.GONE : View.VISIBLE}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_oval" />

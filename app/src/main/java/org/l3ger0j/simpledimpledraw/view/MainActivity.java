@@ -3,14 +3,11 @@ package org.l3ger0j.simpledimpledraw.view;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -43,7 +40,6 @@ import org.l3ger0j.simpledimpledraw.ShapeBuilder;
 import org.l3ger0j.simpledimpledraw.WindowType;
 import org.l3ger0j.simpledimpledraw.model.DialogScreenBuilder;
 import org.l3ger0j.simpledimpledraw.model.PopupWindowBuilder;
-import org.l3ger0j.simpledimpledraw.model.ShakeDetector;
 import org.l3ger0j.simpledimpledraw.presenter.MainContract;
 import org.l3ger0j.simpledimpledraw.presenter.MainPresenter;
 
@@ -72,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
     public ObservableBoolean isClickOnCloseLMenu = new ObservableBoolean();
     public ObservableBoolean isClickOnCloseRMenu = new ObservableBoolean();
     public ObservableBoolean isClickOnCloseCenterMenu = new ObservableBoolean();
+    public ObservableBoolean isClickOnCloseTopMenu = new ObservableBoolean();
 
     private DrawPaint drawPaint;
     private AlertDialog alertDialog;
@@ -92,17 +89,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         binding.setMainActivity(this);
         shapeManager = binding.shapeManager;
         paintActivity = binding.simpleDrawingView;
-
-        SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        ShakeDetector mShakeDetector = new ShakeDetector();
-        mShakeDetector.setOnShakeListener(count -> {
-            if (count == 3) {
-                isClickOnCloseLMenu.set(false);
-                isClickOnCloseRMenu.set(false);
-                isClickOnCloseCenterMenu.set(false);
-            }
-        });
 
         drawPaint = new DrawPaint();
         paintActivity.setDrawPaint(drawPaint);
@@ -185,6 +171,38 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
             isClickOnCloseRMenu.set(true);
         } else if (id == R.id.btnCloseCenterMenu) {
             isClickOnCloseCenterMenu.set(true);
+        }
+    }
+
+    public void addShape(View v) {
+        int id = v.getId();
+        if (id == R.id.cAddCircle) {
+            shapeManager.selectShape = 1;
+            toggleButton.setChecked(true);
+            isClickOnCloseLMenu.set(true);
+            isClickOnCloseRMenu.set(true);
+            isClickOnCloseCenterMenu.set(true);
+            isClickOnCloseTopMenu.set(true);
+            shapeManager.setVisibility(View.VISIBLE);
+            toggleButton.setVisibility(View.VISIBLE);
+        } else if (id == R.id.cAddRect) {
+            shapeManager.selectShape = 2;
+            toggleButton.setChecked(true);
+            shapeManager.setVisibility(View.VISIBLE);
+            isClickOnCloseLMenu.set(true);
+            isClickOnCloseRMenu.set(true);
+            isClickOnCloseCenterMenu.set(true);
+            isClickOnCloseTopMenu.set(true);
+            toggleButton.setVisibility(View.VISIBLE);
+        } else if (id == R.id.cAddOval) {
+            shapeManager.selectShape = 3;
+            toggleButton.setChecked(true);
+            isClickOnCloseLMenu.set(true);
+            isClickOnCloseRMenu.set(true);
+            isClickOnCloseCenterMenu.set(true);
+            isClickOnCloseTopMenu.set(true);
+            shapeManager.setVisibility(View.VISIBLE);
+            toggleButton.setVisibility(View.VISIBLE);
         }
     }
 

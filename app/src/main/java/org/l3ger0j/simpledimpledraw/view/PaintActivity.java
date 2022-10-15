@@ -15,17 +15,20 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.l3ger0j.simpledimpledraw.DrawPaint;
 import org.l3ger0j.simpledimpledraw.ShapeBuilder;
 import org.l3ger0j.simpledimpledraw.model.SpecialPath;
 import org.l3ger0j.simpledimpledraw.presenter.MainContract;
+import org.l3ger0j.simpledimpledraw.presenter.PaintPresenter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,12 +41,12 @@ public class PaintActivity extends View implements MainContract.PaintActivity {
     private Canvas drawCanvas;
     private final Matrix identityMatrix = new Matrix();
     private SpecialPath specialPath;
+    private final PaintPresenter paintPresenter = PaintPresenter.newInstance();
 
-    private final ArrayList<SpecialPath> paths = new ArrayList<>();
+    private ArrayList<SpecialPath> paths = new ArrayList<>();
     private final ArrayList<SpecialPath> undo = new ArrayList<>();
-
-    private final Map<SpecialPath, Integer> colorsMap = new HashMap<>();
-    private final Map<SpecialPath, Float> strokeMap = new HashMap<>();
+    private Map<SpecialPath, Integer> colorsMap = new HashMap<>();
+    private Map<SpecialPath, Float> strokeMap = new HashMap<>();
 
     private int mBackColor = 0;
     private int mColor = Color.BLACK;
@@ -176,13 +179,53 @@ public class PaintActivity extends View implements MainContract.PaintActivity {
         setFocusableInTouchMode(true);
         setBackgroundColor(Color.WHITE);
 
-        drawPaint = new DrawPaint();
-        drawCanvas = new Canvas();
-        specialPath = new SpecialPath();
+        if (paintPresenter.getDrawPaint() != null) {
+            drawPaint = paintPresenter.getDrawPaint();
+        } else {
+            drawPaint = new DrawPaint();
+        }
 
-        colorsMap.put(specialPath, mColor);
-        strokeMap.put(specialPath, mStroke);
-        paths.add(specialPath);
+        if (paintPresenter.getDrawCanvas() != null) {
+            drawCanvas = paintPresenter.getDrawCanvas();
+        } else {
+            drawCanvas = new Canvas();
+        }
+
+        if (paintPresenter.getSpecialPath() != null) {
+            specialPath = paintPresenter.getSpecialPath();
+        } else {
+            specialPath = new SpecialPath();
+        }
+
+        if (paintPresenter.getColorsMap() != null) {
+            colorsMap = paintPresenter.getColorsMap();
+        } else {
+            colorsMap.put(specialPath, mColor);
+        }
+
+        if (paintPresenter.getStrokeMap() != null) {
+            strokeMap = paintPresenter.getStrokeMap();
+        } else {
+            strokeMap.put(specialPath, mStroke);
+        }
+
+        if (paintPresenter.getPaths() != null) {
+            paths = paintPresenter.getPaths();
+        } else {
+            paths.add(specialPath);
+        }
+    }
+
+    @Nullable
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        paintPresenter.setDrawCanvas(drawCanvas);
+        paintPresenter.setDrawPaint(drawPaint);
+        paintPresenter.setSpecialPath(specialPath);
+        paintPresenter.setStrokeMap(strokeMap);
+        paintPresenter.setColorsMap(colorsMap);
+        paintPresenter.setPaths(paths);
+        return super.onSaveInstanceState();
     }
 
     @Override
