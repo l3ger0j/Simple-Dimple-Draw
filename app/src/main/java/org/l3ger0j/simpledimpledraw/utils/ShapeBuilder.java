@@ -1,4 +1,4 @@
-package org.l3ger0j.simpledimpledraw;
+package org.l3ger0j.simpledimpledraw.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+
+import org.l3ger0j.simpledimpledraw.R;
+import org.l3ger0j.simpledimpledraw.utils.RoundBall;
 
 import java.util.ArrayList;
 

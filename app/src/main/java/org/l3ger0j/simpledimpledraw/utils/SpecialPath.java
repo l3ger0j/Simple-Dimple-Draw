@@ -1,4 +1,4 @@
-package org.l3ger0j.simpledimpledraw.model;
+package org.l3ger0j.simpledimpledraw.utils;
 
 import android.graphics.Path;
 

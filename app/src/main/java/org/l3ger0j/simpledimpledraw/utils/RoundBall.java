@@ -1,4 +1,4 @@
-package org.l3ger0j.simpledimpledraw;
+package org.l3ger0j.simpledimpledraw.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

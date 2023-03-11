@@ -1,7 +1,6 @@
 package org.l3ger0j.simpledimpledraw.view;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,22 +25,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ObservableBoolean;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.jaredrummler.android.colorpicker.ColorShape;
 
-import org.l3ger0j.simpledimpledraw.DialogType;
-import org.l3ger0j.simpledimpledraw.DrawPaint;
+import org.l3ger0j.simpledimpledraw.view.dialogs.MainDialogFrags;
+import org.l3ger0j.simpledimpledraw.view.dialogs.MainDialogType;
+import org.l3ger0j.simpledimpledraw.utils.DrawPaint;
 import org.l3ger0j.simpledimpledraw.R;
-import org.l3ger0j.simpledimpledraw.ShapeBuilder;
-import org.l3ger0j.simpledimpledraw.WindowType;
-import org.l3ger0j.simpledimpledraw.model.DialogScreenBuilder;
-import org.l3ger0j.simpledimpledraw.model.PopupWindowBuilder;
-import org.l3ger0j.simpledimpledraw.presenter.MainContract;
-import org.l3ger0j.simpledimpledraw.presenter.MainPresenter;
+import org.l3ger0j.simpledimpledraw.utils.ShapeBuilder;
+import org.l3ger0j.simpledimpledraw.view.window.WindowType;
+import org.l3ger0j.simpledimpledraw.databinding.ActivityMainBinding;
+import org.l3ger0j.simpledimpledraw.view.window.PopupWindowBuilder;
+import org.l3ger0j.simpledimpledraw.view.dialogs.MainPatternDialogFrags;
+import org.l3ger0j.simpledimpledraw.viewModel.MainViewModel;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,8 +51,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements MainContract.MainActivity, ColorPickerDialogListener,
-        SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity implements MainPatternDialogFrags.MainPatternDialogList,
+        ColorPickerDialogListener, SeekBar.OnSeekBarChangeListener {
 
     // region Layouts
     private PaintActivity paintActivity;
@@ -63,15 +64,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
     private ToggleButton toggleButton;
     // endregion
 
-    private final MainPresenter mainPresenter = new MainPresenter(this);
-
-    public ObservableBoolean isClickOnCloseLMenu = new ObservableBoolean();
-    public ObservableBoolean isClickOnCloseRMenu = new ObservableBoolean();
-    public ObservableBoolean isClickOnCloseCenterMenu = new ObservableBoolean();
-    public ObservableBoolean isClickOnCloseTopMenu = new ObservableBoolean();
-
     private DrawPaint drawPaint;
-    private AlertDialog alertDialog;
     private TextView textView;
     private final PopupWindowBuilder popupWindowBuilder = new PopupWindowBuilder();
     private Uri uriBitmap = null;
@@ -79,35 +72,38 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
     private int turnOnMove;
     private final int[] posPopupWindow = new int[2];
 
+    private MainViewModel mainViewModel;
+    private ActivityMainBinding mainBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel.mainActivityField.set(this);
+        mainBinding.setMainViewModel(mainViewModel);
 
-        // ViewBinding activity_main => ActivityMainBinding
-        org.l3ger0j.simpledimpledraw.databinding.ActivityMainBinding binding =
-                DataBindingUtil.setContentView(this, R.layout.activity_main);
-        binding.setMainActivity(this);
-        shapeManager = binding.shapeManager;
-        paintActivity = binding.simpleDrawingView;
+        shapeManager = mainBinding.shapeManager;
+        paintActivity = mainBinding.simpleDrawingView;
 
         drawPaint = new DrawPaint();
         paintActivity.setDrawPaint(drawPaint);
 
-        fabSave = binding.fabSave;
-        toggleButton = binding.toggleButton;
+        fabSave = mainBinding.fabSave;
+        toggleButton = mainBinding.toggleButton;
 
-        binding.fabSetSize.setOnClickListener(mainViewOnClickList);
-        binding.fabSetDrawColor.setOnClickListener(mainViewOnClickList);
-        binding.fabSetBackgroundColor.setOnClickListener(mainViewOnClickList);
-        binding.fabEraser.setOnClickListener(mainViewOnClickList);
-        binding.fabClearCanvas.setOnClickListener(mainViewOnClickList);
-        binding.fabSave.setOnClickListener(mainViewOnClickList);
-        binding.fabShowMenu.setOnClickListener(mainViewOnClickList);
-        binding.toggleButton.setOnClickListener(mainViewOnClickList);
-        binding.undoButton.setOnClickListener(mainViewOnClickList);
-        binding.redoButton.setOnClickListener(mainViewOnClickList);
+        mainBinding.fabSetSize.setOnClickListener(mainViewOnClickList);
+        mainBinding.fabSetDrawColor.setOnClickListener(mainViewOnClickList);
+        mainBinding.fabSetBackgroundColor.setOnClickListener(mainViewOnClickList);
+        mainBinding.fabEraser.setOnClickListener(mainViewOnClickList);
+        mainBinding.fabClearCanvas.setOnClickListener(mainViewOnClickList);
+        mainBinding.fabSave.setOnClickListener(mainViewOnClickList);
+        mainBinding.fabShowMenu.setOnClickListener(mainViewOnClickList);
+        mainBinding.toggleButton.setOnClickListener(mainViewOnClickList);
+        mainBinding.undoButton.setOnClickListener(mainViewOnClickList);
+        mainBinding.redoButton.setOnClickListener(mainViewOnClickList);
 
-        setContentView(binding.getRoot());
+        setContentView(mainBinding.getRoot());
     }
 
     @Override
@@ -121,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
     View.OnClickListener mainViewOnClickList = new View.OnClickListener() {
         @Override
         public void onClick(@NonNull View v) {
+
             if (v.getId() == R.id.undoButton) {
                 paintActivity.undoPath();
                 paintActivity.invalidateView();
@@ -159,72 +156,44 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
                     shapeManager.setVisibility(View.GONE);
                     toggleButton.setVisibility(View.GONE);
                 }
+                mainViewModel.showAllMenu();
             }
         }
     };
-
-    public void changeVisible(View v) {
-        int id = v.getId();
-        if (id == R.id.btnCloseLMenu) {
-            isClickOnCloseLMenu.set(true);
-        } else if (id == R.id.btnCloseRMenu) {
-            isClickOnCloseRMenu.set(true);
-        } else if (id == R.id.btnCloseCenterMenu) {
-            isClickOnCloseCenterMenu.set(true);
-        }
-    }
 
     public void addShape(View v) {
         int id = v.getId();
         if (id == R.id.cAddCircle) {
             shapeManager.selectShape = 1;
             toggleButton.setChecked(true);
-            isClickOnCloseLMenu.set(true);
-            isClickOnCloseRMenu.set(true);
-            isClickOnCloseCenterMenu.set(true);
-            isClickOnCloseTopMenu.set(true);
+            mainViewModel.hideAllMenu();
             shapeManager.setVisibility(View.VISIBLE);
             toggleButton.setVisibility(View.VISIBLE);
         } else if (id == R.id.cAddRect) {
             shapeManager.selectShape = 2;
             toggleButton.setChecked(true);
             shapeManager.setVisibility(View.VISIBLE);
-            isClickOnCloseLMenu.set(true);
-            isClickOnCloseRMenu.set(true);
-            isClickOnCloseCenterMenu.set(true);
-            isClickOnCloseTopMenu.set(true);
+            mainViewModel.hideAllMenu();
             toggleButton.setVisibility(View.VISIBLE);
         } else if (id == R.id.cAddOval) {
             shapeManager.selectShape = 3;
             toggleButton.setChecked(true);
-            isClickOnCloseLMenu.set(true);
-            isClickOnCloseRMenu.set(true);
-            isClickOnCloseCenterMenu.set(true);
-            isClickOnCloseTopMenu.set(true);
+            mainViewModel.hideAllMenu();
             shapeManager.setVisibility(View.VISIBLE);
             toggleButton.setVisibility(View.VISIBLE);
         }
     }
 
     public void showAboutDialog() {
-        mainPresenter.createAboutDialog().show();
-    }
-
-    public DialogInterface.OnClickListener mainDialogOnClickList (int dialogID) {
-        return (dialog , which) -> {
-            if (dialogID == 1) {
-                // ListView listView = ((AlertDialog) dialog).getListView();
-                if (which == Dialog.BUTTON_NEGATIVE) {
-                    sendPic();
-                }
-            }
-        };
+        var dialogFrags = new MainDialogFrags();
+        dialogFrags.setDialogType(MainDialogType.ABOUT_DIALOG);
+        dialogFrags.show(getSupportFragmentManager() , "aboutDialogFragment");
     }
 
     // region picSave
     private void openCaptureMenu() {
-        View popupView = popupWindowBuilder.createPopupWindowView(this, WindowType.CaptureMenu);
-        PopupWindow popupWindow = popupWindowBuilder.createPopupWindow(WindowType.CaptureMenu);
+        View popupView = popupWindowBuilder.createPopupWindowView(this, WindowType.CAPTURE_MENU);
+        PopupWindow popupWindow = popupWindowBuilder.createPopupWindow(WindowType.CAPTURE_MENU);
         popupWindow.showAtLocation(fabSave, Gravity.START, 870, 140);
 
         popupView.findViewById(R.id.saveCanvas).setOnClickListener(v -> {
@@ -252,11 +221,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
             popupWindow.dismiss();
 
             Toast.makeText(this, "Save", Toast.LENGTH_LONG).show();
-            DialogScreenBuilder dialogScreenBuilder = new DialogScreenBuilder();
-            dialogScreenBuilder.setImageBitmap(paintActivity.getCanvasBitmap());
-            dialogScreenBuilder.setOnClickListener(mainDialogOnClickList(1));
-            alertDialog = DialogScreenBuilder.createAlertDialog(this , DialogType.CaptureDialog);
-            alertDialog.show();
+            var dialogFrags = new MainDialogFrags();
+            dialogFrags.setDialogType(MainDialogType.CAPTURE_DIALOG);
+            dialogFrags.imageBitmap.set(paintActivity.getCanvasBitmap());
+            dialogFrags.show(getSupportFragmentManager() , "captureDialogFragment");
         });
 
         if (uriBitmap != null & path != null) {
@@ -277,8 +245,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
     // region FAB popupWindow
     public void showMinSettingDrawWindow() {
-        View popupView = popupWindowBuilder.createPopupWindowView(this, WindowType.MinimalSetting);
-        PopupWindow popupWindow = popupWindowBuilder.createPopupWindow(WindowType.MinimalSetting);
+        View popupView = popupWindowBuilder.createPopupWindowView(this, WindowType.MINIMAL_SETTING);
+        PopupWindow popupWindow = popupWindowBuilder.createPopupWindow(WindowType.MINIMAL_SETTING);
         popupWindow.showAtLocation(findViewById(R.id.fabSetSize),
                 Gravity.CENTER, posPopupWindow[0], posPopupWindow[1]);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -385,5 +353,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
     @Override
     public void onDialogDismissed(int dialogId) {
+    }
+
+    @Override
+    public void onDialogNegativeClick(MainDialogFrags mainDialogFrags) {
+        sendPic();
     }
 }

@@ -23,25 +23,24 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
-import org.l3ger0j.simpledimpledraw.DrawPaint;
-import org.l3ger0j.simpledimpledraw.ShapeBuilder;
-import org.l3ger0j.simpledimpledraw.model.SpecialPath;
-import org.l3ger0j.simpledimpledraw.presenter.MainContract;
-import org.l3ger0j.simpledimpledraw.presenter.PaintPresenter;
+import org.l3ger0j.simpledimpledraw.utils.DrawPaint;
+import org.l3ger0j.simpledimpledraw.utils.ShapeBuilder;
+import org.l3ger0j.simpledimpledraw.utils.SpecialPath;
+import org.l3ger0j.simpledimpledraw.viewModel.MainViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PaintActivity extends View implements MainContract.PaintActivity {
-
+public class PaintActivity extends View {
     private DrawPaint drawPaint;
     private static Bitmap myCanvasBitmap;
     private Canvas drawCanvas;
     private final Matrix identityMatrix = new Matrix();
     private SpecialPath specialPath;
-    private final PaintPresenter paintPresenter = PaintPresenter.newInstance();
+    private final MainViewModel viewModel;
 
     private ArrayList<SpecialPath> paths = new ArrayList<>();
     private final ArrayList<SpecialPath> undo = new ArrayList<>();
@@ -171,6 +170,8 @@ public class PaintActivity extends View implements MainContract.PaintActivity {
 
     public PaintActivity(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
+        viewModel = new ViewModelProvider((MainActivity) getContext()).get(MainViewModel.class);
+        viewModel.paintActivityField.set(this);
         init();
     }
 
@@ -179,52 +180,57 @@ public class PaintActivity extends View implements MainContract.PaintActivity {
         setFocusableInTouchMode(true);
         setBackgroundColor(Color.WHITE);
 
-        if (paintPresenter.getDrawPaint() != null) {
-            drawPaint = paintPresenter.getDrawPaint();
+        // undo/redo system
+        if (viewModel.getPaths() != null) {
+            paths = viewModel.getPaths();
+        } else {
+            paths.add(specialPath);
+        }
+        if (viewModel.getUndo() != null) {
+            paths = viewModel.getUndo();
+        }
+
+        if (viewModel.getDrawPaint() != null) {
+            drawPaint = viewModel.getDrawPaint();
         } else {
             drawPaint = new DrawPaint();
         }
 
-        if (paintPresenter.getDrawCanvas() != null) {
-            drawCanvas = paintPresenter.getDrawCanvas();
+        if (viewModel.getDrawCanvas() != null) {
+            drawCanvas = viewModel.getDrawCanvas();
         } else {
             drawCanvas = new Canvas();
         }
 
-        if (paintPresenter.getSpecialPath() != null) {
-            specialPath = paintPresenter.getSpecialPath();
+        if (viewModel.getSpecialPath() != null) {
+            specialPath = viewModel.getSpecialPath();
         } else {
             specialPath = new SpecialPath();
         }
 
-        if (paintPresenter.getColorsMap() != null) {
-            colorsMap = paintPresenter.getColorsMap();
+        if (viewModel.getColorsMap() != null) {
+            colorsMap = viewModel.getColorsMap();
         } else {
             colorsMap.put(specialPath, mColor);
         }
 
-        if (paintPresenter.getStrokeMap() != null) {
-            strokeMap = paintPresenter.getStrokeMap();
+        if (viewModel.getStrokeMap() != null) {
+            strokeMap = viewModel.getStrokeMap();
         } else {
             strokeMap.put(specialPath, mStroke);
-        }
-
-        if (paintPresenter.getPaths() != null) {
-            paths = paintPresenter.getPaths();
-        } else {
-            paths.add(specialPath);
         }
     }
 
     @Nullable
     @Override
     protected Parcelable onSaveInstanceState() {
-        paintPresenter.setDrawCanvas(drawCanvas);
-        paintPresenter.setDrawPaint(drawPaint);
-        paintPresenter.setSpecialPath(specialPath);
-        paintPresenter.setStrokeMap(strokeMap);
-        paintPresenter.setColorsMap(colorsMap);
-        paintPresenter.setPaths(paths);
+        viewModel.setDrawCanvas(drawCanvas);
+        viewModel.setDrawPaint(drawPaint);
+        viewModel.setSpecialPath(specialPath);
+        viewModel.setStrokeMap(strokeMap);
+        viewModel.setColorsMap(colorsMap);
+        viewModel.setPaths(paths);
+        viewModel.setUndo(undo);
         return super.onSaveInstanceState();
     }
 
@@ -254,7 +260,6 @@ public class PaintActivity extends View implements MainContract.PaintActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         super .onTouchEvent(event);
-
         float pointX = event.getX();
         float pointY = event.getY();
         if (eraserOn) {

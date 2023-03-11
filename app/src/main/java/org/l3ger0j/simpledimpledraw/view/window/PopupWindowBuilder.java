@@ -1,4 +1,4 @@
-package org.l3ger0j.simpledimpledraw.model;
+package org.l3ger0j.simpledimpledraw.view.window;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,7 +13,6 @@ import android.widget.PopupWindow;
 import androidx.annotation.NonNull;
 
 import org.l3ger0j.simpledimpledraw.R;
-import org.l3ger0j.simpledimpledraw.WindowType;
 
 public class PopupWindowBuilder {
     private View popupView;
@@ -25,15 +24,15 @@ public class PopupWindowBuilder {
     }
 
     public View createPopupWindowView (Activity activity, @NonNull WindowType windowType) {
-        LinearLayout linearLayout = new LinearLayout(activity);
-        LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        var linearLayout = new LinearLayout(activity);
+        var layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         switch (windowType) {
-            case MinimalSetting:
+            case MINIMAL_SETTING:
                 popupView = layoutInflater.inflate(R.layout.popup_fab, linearLayout);
                 popupView.setBackgroundColor(mColor);
                 break;
-            case CaptureMenu:
+            case CAPTURE_MENU:
                 popupView = layoutInflater.inflate(R.layout.popup_capture_menu, linearLayout);
                 popupView.setBackgroundColor(mColor);
                 break;
@@ -44,8 +43,8 @@ public class PopupWindowBuilder {
 
     public PopupWindow createPopupWindow (@NonNull WindowType windowType) {
         switch (windowType) {
-            case MinimalSetting:
-            case CaptureMenu:
+            case MINIMAL_SETTING:
+            case CAPTURE_MENU:
                 popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT, true);
                 popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
