@@ -1,57 +1,50 @@
-package org.l3ger0j.simpledimpledraw.view.window;
+package org.l3ger0j.simpledimpledraw.view.window
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
+import android.app.Activity
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import org.l3ger0j.simpledimpledraw.R
 
-import androidx.annotation.NonNull;
-
-import org.l3ger0j.simpledimpledraw.R;
-
-public class PopupWindowBuilder {
-    private View popupView;
-    private PopupWindow popupWindow;
-    private int mColor = Color.WHITE;
-
-    public void setBackgroundColor (int color) {
-        this.mColor = color;
+class PopupWindowBuilder {
+    private var popupView: View? = null
+    private var popupWindow: PopupWindow? = null
+    private var mColor = Color.WHITE
+    fun setBackgroundColor(color: Int) {
+        mColor = color
     }
 
-    public View createPopupWindowView (Activity activity, @NonNull WindowType windowType) {
-        var linearLayout = new LinearLayout(activity);
-        var layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    fun createPopupWindowView(activity: Activity, windowType: WindowType): View? {
+        val linearLayout = LinearLayout(activity)
+        val layoutInflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        when (windowType) {
+            WindowType.MINIMAL_SETTING -> {
+                popupView = layoutInflater.inflate(R.layout.popup_fab, linearLayout)
+                popupView?.let { setBackgroundColor(mColor) }
+            }
 
-        switch (windowType) {
-            case MINIMAL_SETTING:
-                popupView = layoutInflater.inflate(R.layout.popup_fab, linearLayout);
-                popupView.setBackgroundColor(mColor);
-                break;
-            case CAPTURE_MENU:
-                popupView = layoutInflater.inflate(R.layout.popup_capture_menu, linearLayout);
-                popupView.setBackgroundColor(mColor);
-                break;
+            WindowType.CAPTURE_MENU -> {
+                popupView = layoutInflater.inflate(R.layout.popup_capture_menu, linearLayout)
+                popupView?.let { setBackgroundColor(mColor) }
+            }
         }
-
-        return popupView;
+        return popupView
     }
 
-    public PopupWindow createPopupWindow (@NonNull WindowType windowType) {
-        switch (windowType) {
-            case MINIMAL_SETTING:
-            case CAPTURE_MENU:
-                popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT, true);
-                popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-                popupWindow.setOutsideTouchable(true);
-                break;
+    fun createPopupWindow(windowType: WindowType): PopupWindow {
+        when (windowType) {
+            WindowType.MINIMAL_SETTING, WindowType.CAPTURE_MENU -> {
+                popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT, true)
+                popupWindow!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+                popupWindow!!.isOutsideTouchable = true
+            }
         }
-
-        return popupWindow;
+        return popupWindow as PopupWindow
     }
 }

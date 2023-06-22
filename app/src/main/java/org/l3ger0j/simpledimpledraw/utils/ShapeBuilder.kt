@@ -1,224 +1,188 @@
-package org.l3ger0j.simpledimpledraw.utils;
+package org.l3ger0j.simpledimpledraw.utils
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Point
+import android.graphics.Rect
+import android.graphics.RectF
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.View
+import org.l3ger0j.simpledimpledraw.R
+import kotlin.math.sqrt
 
-import androidx.annotation.NonNull;
+class ShapeBuilder @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyle: Int = 0) : View(context, attrs, defStyle) {
+    private val points = arrayOfNulls<Point>(4)
+    var groupId = -1
+    private val cornballs = ArrayList<RoundBall>()
+    @JvmField
+    var mStrokeColor = Color.BLACK
+    @JvmField
+    var mStrokeWidth = 10
+    private val mFillColor = Color.TRANSPARENT
+    @JvmField
+    val mCropRect = Rect()
+    @JvmField
+    var selectShape = 0
+    @JvmField
+    var radiusRect = 0
 
-import org.l3ger0j.simpledimpledraw.R;
-import org.l3ger0j.simpledimpledraw.utils.RoundBall;
+    private var balID = 0
 
-import java.util.ArrayList;
+    var paint: Paint? = null
 
-public class ShapeBuilder extends View {
-
-    final Point[] points = new Point[4];
-    int groupId = -1;
-    private final ArrayList<RoundBall> cornballs = new ArrayList<>();
-
-    public int mStrokeColor = Color.BLACK;
-    public int mStrokeWidth = 10;
-    public final int mFillColor = Color.TRANSPARENT;
-    public final Rect mCropRect = new Rect();
-
-    public int selectShape;
-    public int radiusRect;
-    // array that holds the balls
-    private int balID = 0;
-    // variable to know what ball is being dragged
-    Paint paint;
-
-    public ShapeBuilder(Context context) {
-        this(context, null);
+    init {
+        init()
     }
 
-    public ShapeBuilder(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+    private fun init() {
+        paint = Paint()
+        isFocusable = true
     }
 
-    public ShapeBuilder(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init();
-    }
-
-    private void init() {
-        paint = new Paint();
-        setFocusable(true);
-    }
-
-    private void initRectangle(int X, int Y) {
-        //initialize rectangle.
-        points[0] = new Point();
-        points[0].x = X;
-        points[0].y = Y;
-
-        points[1] = new Point();
-        points[1].x = X;
-        points[1].y = Y + 30;
-
-        points[2] = new Point();
-        points[2].x = X + 30;
-        points[2].y = Y + 30;
-
-        points[3] = new Point();
-        points[3].x = X +30;
-        points[3].y = Y;
-
-        balID = 2;
-        groupId = 1;
-        for (int i = 0; i < points.length; i++) {
-            cornballs.add(new RoundBall(getContext(), R.drawable.circle , points[i], i));
+    private fun initRectangle(X: Int, Y: Int) {
+        points[0] = Point()
+        points[0]!!.x = X
+        points[0]!!.y = Y
+        points[1] = Point()
+        points[1]!!.x = X
+        points[1]!!.y = Y + 30
+        points[2] = Point()
+        points[2]!!.x = X + 30
+        points[2]!!.y = Y + 30
+        points[3] = Point()
+        points[3]!!.x = X + 30
+        points[3]!!.y = Y
+        balID = 2
+        groupId = 1
+        for (i in points.indices) {
+            cornballs.add(RoundBall(context, R.drawable.circle, points[i]!!, i))
         }
     }
 
-    // the method that draws the balls
-    @Override
-    protected void onDraw(Canvas canvas) {
-
-        if(points[3]==null) {
-            //point4 null when view first create
-            initRectangle(getWidth() / 2, getHeight() / 2);
+    override fun onDraw(canvas: Canvas) {
+        if (points[3] == null) {
+            initRectangle(width / 2, height / 2)
+        }
+        var left: Int
+        var top: Int
+        var right: Int
+        var bottom: Int
+        left = points[0]!!.x
+        top = points[0]!!.y
+        right = points[0]!!.x
+        bottom = points[0]!!.y
+        for (i in 1 until points.size) {
+            left = left.coerceAtMost(points[i]!!.x)
+            top = top.coerceAtMost(points[i]!!.y)
+            right = right.coerceAtLeast(points[i]!!.x)
+            bottom = bottom.coerceAtLeast(points[i]!!.y)
+        }
+        paint!!.isAntiAlias = true
+        paint!!.isDither = true
+        paint!!.strokeJoin = Paint.Join.ROUND
+        paint!!.style = Paint.Style.STROKE
+        paint!!.color = mStrokeColor
+        paint!!.strokeWidth = mStrokeWidth.toFloat()
+        mCropRect.left = left + cornballs[0].widthOfBall / 2
+        mCropRect.top = top + cornballs[0].widthOfBall / 2
+        mCropRect.right = right + cornballs[2].widthOfBall / 2
+        mCropRect.bottom = bottom + cornballs[3].widthOfBall / 2
+        when (selectShape) {
+            1 -> {
+                radiusRect = mCropRect.width().coerceAtMost(mCropRect.height()) / 2
+                canvas.drawCircle(mCropRect.centerX().toFloat(), mCropRect.centerY().toFloat(), radiusRect.toFloat(), paint!!)
+            }
+            2 -> {
+                canvas.drawRect(mCropRect, paint!!)
+            }
+            3 -> {
+                @SuppressLint("DrawAllocation")
+                val ovalRectF = RectF(mCropRect)
+                canvas.drawOval(ovalRectF, paint!!)
+            }
         }
 
-        int left, top, right, bottom;
-        left = points[0].x;
-        top = points[0].y;
-        right = points[0].x;
-        bottom = points[0].y;
-        for (int i = 1; i < points.length; i++) {
-            left = Math.min(left , points[i].x);
-            top = Math.min(top , points[i].y);
-            right = Math.max(right , points[i].x);
-            bottom = Math.max(bottom , points[i].y);
-        }
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(mStrokeColor);
-        paint.setStrokeWidth(mStrokeWidth);
+        paint!!.style = Paint.Style.FILL
+        paint!!.color = mFillColor
+        paint!!.strokeWidth = 0f
+        canvas.drawRect(mCropRect, paint!!)
 
-        mCropRect.left = left + cornballs.get(0).getWidthOfBall() / 2;
-        mCropRect.top = top + cornballs.get(0).getWidthOfBall() / 2;
-        mCropRect.right = right + cornballs.get(2).getWidthOfBall() / 2;
-        mCropRect.bottom = bottom + cornballs.get(3).getWidthOfBall() / 2;
-
-        if (selectShape == 1) {
-            radiusRect = Math.min(mCropRect.width(),mCropRect.height()) / 2;
-            canvas.drawCircle(mCropRect.centerX(), mCropRect.centerY(),radiusRect, paint);
-        } else if (selectShape == 2) {
-            canvas.drawRect(mCropRect, paint);
-        } else if (selectShape == 3) {
-            @SuppressLint("DrawAllocation") RectF ovalRectF = new RectF(mCropRect);
-            canvas.drawOval(ovalRectF, paint);
-        }
-
-        //fill the rectangle
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(mFillColor);
-        paint.setStrokeWidth(0);
-        canvas.drawRect(mCropRect, paint);
-
-        // draw the balls on the canvas
-        paint.setColor(Color.RED);
-        paint.setTextSize(35);
-        paint.setStrokeWidth(0);
-        for (int i = 0; i < cornballs.size(); i ++) {
-            RoundBall ball = cornballs.get(i);
-            canvas.drawBitmap(ball.getBitmap(), ball.getX(), ball.getY(),
-                    paint);
-
-            canvas.drawText("" + (i+1), ball.getX(), ball.getY(), paint);
+        paint!!.color = Color.RED
+        paint!!.textSize = 35f
+        paint!!.strokeWidth = 0f
+        for (i in cornballs.indices) {
+            val ball = cornballs[i]
+            canvas.drawBitmap(ball.bitmap, ball.x.toFloat(), ball.y.toFloat(),
+                    paint)
+            canvas.drawText("" + (i + 1), ball.x.toFloat(), ball.y.toFloat(), paint!!)
         }
     }
 
     // events when touching the screen
     @SuppressLint("ClickableViewAccessibility")
-    public boolean onTouchEvent(@NonNull MotionEvent event) {
-        int eventAction = event.getAction();
-
-        int X = (int) event.getX();
-        int Y = (int) event.getY();
-
-        switch (eventAction) {
-
-            case MotionEvent.ACTION_DOWN: // touch down so check if the finger is on
-                // a ball
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val eventAction = event.action
+        val xPos = event.x.toInt()
+        val yPos = event.y.toInt()
+        when (eventAction) {
+            MotionEvent.ACTION_DOWN ->
                 if (points[0] == null) {
-                    initRectangle(X, Y);
+                    initRectangle(xPos, yPos)
                 } else {
-                    //resize rectangle
-                    balID = -1;
-                    groupId = -1;
-                    for (int i = cornballs.size()-1; i>=0; i--) {
-                        RoundBall ball = cornballs.get(i);
-                        // check if inside the bounds of the ball (circle)
-                        // get the center for the ball
-                        int centerX = ball.getX() + ball.getWidthOfBall();
-                        int centerY = ball.getY() + ball.getHeightOfBall();
-                        paint.setColor(Color.CYAN);
-                        // calculate the radius from the touch to the center of the
-                        // ball
-                        double radCircle = Math
-                                .sqrt(((centerX - X) * (centerX - X)) + (centerY - Y)
-                                        * (centerY - Y));
-
-                        if (radCircle < ball.getWidthOfBall()) {
-
-                            balID = ball.getID();
-                            if (balID == 1 || balID == 3) {
-                                groupId = 2;
+                    balID = -1
+                    groupId = -1
+                    var i = cornballs.size - 1
+                    while (i >= 0) {
+                        val ball = cornballs[i]
+                        val centerX = ball.x + ball.widthOfBall
+                        val centerY = ball.y + ball.heightOfBall
+                        paint!!.color = Color.CYAN
+                        val radCircle = sqrt(((centerX - xPos)
+                                * (centerX - xPos)
+                                + (centerY - yPos)
+                                * (centerY - yPos)).toDouble())
+                        if (radCircle < ball.widthOfBall) {
+                            balID = ball.iD
+                            groupId = if (balID == 1 || balID == 3) {
+                                2
                             } else {
-                                groupId = 1;
+                                1
                             }
-                            invalidate();
-                            break;
+                            invalidate()
+                            break
                         }
-                        invalidate();
+                        invalidate()
+                        i--
                     }
                 }
-                break;
 
-            case MotionEvent.ACTION_MOVE: // touch drag with the ball
-
-                if (balID > -1) {
-                    // move the balls the same as the finger
-                    cornballs.get(balID).setX(X);
-                    cornballs.get(balID).setY(Y);
-
-                    paint.setColor(Color.CYAN);
-                    if (groupId == 1) {
-                        cornballs.get(1).setX(cornballs.get(0).getX());
-                        cornballs.get(1).setY(cornballs.get(2).getY());
-                        cornballs.get(3).setX(cornballs.get(2).getX());
-                        cornballs.get(3).setY(cornballs.get(0).getY());
-                    } else {
-                        cornballs.get(0).setX(cornballs.get(1).getX());
-                        cornballs.get(0).setY(cornballs.get(3).getY());
-                        cornballs.get(2).setX(cornballs.get(3).getX());
-                        cornballs.get(2).setY(cornballs.get(1).getY());
-                    }
-
-                    invalidate();
+            MotionEvent.ACTION_MOVE -> if (balID > -1) {
+                // move the balls the same as the finger
+                cornballs[balID].x = xPos
+                cornballs[balID].y = yPos
+                paint!!.color = Color.CYAN
+                if (groupId == 1) {
+                    cornballs[1].x = cornballs[0].x
+                    cornballs[1].y = cornballs[2].y
+                    cornballs[3].x = cornballs[2].x
+                    cornballs[3].y = cornballs[0].y
+                } else {
+                    cornballs[0].x = cornballs[1].x
+                    cornballs[0].y = cornballs[3].y
+                    cornballs[2].x = cornballs[3].x
+                    cornballs[2].y = cornballs[1].y
                 }
+                invalidate()
+            }
 
-                break;
-
-            case MotionEvent.ACTION_UP:
-                // touch drop - just do things here after dropping
-                break;
+            MotionEvent.ACTION_UP -> {}
         }
         // redraw the canvas
-        invalidate();
-        return true;
+        invalidate()
+        return true
     }
 }

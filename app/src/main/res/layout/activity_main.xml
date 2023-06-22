@@ -19,7 +19,7 @@
         <org.l3ger0j.simpledimpledraw.view.PaintActivity
             android:id="@+id/simpleDrawingView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -123,13 +123,14 @@
                 app:srcCompat="@drawable/format_color_fill" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabShowsMenu"
+                android:id="@+id/fabVisibility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/menu"
                 android:visibility="@{mainViewModel.isHideLeftMenu ? View.GONE : View.VISIBLE}"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:srcCompat="@drawable/hide_source"/>
         </LinearLayout>
 
         <LinearLayout
