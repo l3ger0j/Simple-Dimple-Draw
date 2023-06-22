@@ -1,6 +1,5 @@
-package org.l3ger0j.simpledimpledraw.view.window;
+package org.l3ger0j.simpledimpledraw.view.window
 
-public enum WindowType {
-    MINIMAL_SETTING,
-    CAPTURE_MENU
+enum class WindowType {
+    MINIMAL_SETTING, CAPTURE_MENU
 }

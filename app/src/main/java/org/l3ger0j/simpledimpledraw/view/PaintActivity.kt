@@ -1,307 +1,261 @@
-package org.l3ger0j.simpledimpledraw.view;
+package org.l3ger0j.simpledimpledraw.view
 
-import static android.graphics.Bitmap.Config;
-import static android.graphics.Bitmap.createBitmap;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Path
+import android.graphics.Point
+import android.graphics.PorterDuff
+import android.graphics.RectF
+import android.graphics.drawable.ColorDrawable
+import android.os.Parcelable
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.View
+import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import org.l3ger0j.simpledimpledraw.utils.DrawPaint
+import org.l3ger0j.simpledimpledraw.utils.ShapeBuilder
+import org.l3ger0j.simpledimpledraw.utils.SpecialPath
+import org.l3ger0j.simpledimpledraw.viewModel.MainViewModel
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Path;
-import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.RectF;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Toast;
+class PaintActivity(context: Context?, attributeSet: AttributeSet?) : View(context, attributeSet) {
+    private lateinit var drawPaint: DrawPaint
+    private lateinit var drawCanvas: Canvas
+    private val identityMatrix = Matrix()
+    private lateinit var specialPath: SpecialPath
+    private val viewModel: MainViewModel = ViewModelProvider((getContext() as MainActivity))[MainViewModel::class.java]
+    private var paths = ArrayList<SpecialPath>()
+    private val undo = ArrayList<SpecialPath>()
+    private var colorsMap: MutableMap<SpecialPath?, Int> = HashMap()
+    private var strokeMap: MutableMap<SpecialPath?, Float> = HashMap()
+    private var mBackColor = 0
+    private var mColor = Color.BLACK
+    private var mStroke = 30f
+    private var eraserOn = false
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProvider;
-
-import org.l3ger0j.simpledimpledraw.utils.DrawPaint;
-import org.l3ger0j.simpledimpledraw.utils.ShapeBuilder;
-import org.l3ger0j.simpledimpledraw.utils.SpecialPath;
-import org.l3ger0j.simpledimpledraw.viewModel.MainViewModel;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-public class PaintActivity extends View {
-    private DrawPaint drawPaint;
-    private static Bitmap myCanvasBitmap;
-    private Canvas drawCanvas;
-    private final Matrix identityMatrix = new Matrix();
-    private SpecialPath specialPath;
-    private final MainViewModel viewModel;
-
-    private ArrayList<SpecialPath> paths = new ArrayList<>();
-    private final ArrayList<SpecialPath> undo = new ArrayList<>();
-    private Map<SpecialPath, Integer> colorsMap = new HashMap<>();
-    private Map<SpecialPath, Float> strokeMap = new HashMap<>();
-
-    private int mBackColor = 0;
-    private int mColor = Color.BLACK;
-    private float mStroke = 30;
-    private boolean eraserOn = false;
-
-    public Bitmap getCanvasBitmap(){
-        this.setDrawingCacheEnabled(false);
-        this.setDrawingCacheEnabled(true);
-        return Bitmap.createBitmap(this.getDrawingCache());
-    }
-
-    public int getBackgroundColor() {
-        int color = Color.WHITE;
-        Drawable background = getBackground();
-        if (background instanceof ColorDrawable)
-            color = ((ColorDrawable) background).getColor();
-        invalidate();
-        return color;
-    }
-
-    public void setDrawPaint(DrawPaint drawPaint) {
-        this.drawPaint = drawPaint;
-    }
-
-    public void setColor (int color) {
-        this.mColor = color;
-        invalidate();
-    }
-
-    public void setBackColor (int color) {
-        setBackgroundColor(color);
-    }
-
-    public void setStroke (int stroke) {
-        this.mStroke = stroke;
-        invalidate();
-    }
-
-    public boolean isEraserOn() {
-        return !eraserOn;
-    }
-
-    public void eraseCanvas (boolean isEraserOn) {
-        if (isEraserOn) {
-            eraserOn = true;
-            mBackColor = mColor;
-            mColor = getBackgroundColor();
-        } else {
-            eraserOn = false;
-            mColor = mBackColor;
+    val canvasBitmap: Bitmap
+        get() {
+            this.isDrawingCacheEnabled = false
+            this.isDrawingCacheEnabled = true
+            return Bitmap.createBitmap(this.drawingCache)
         }
-        invalidate();
+
+    val backgroundColor: Int
+        get() {
+            var color = Color.WHITE
+            val background = background
+            if (background is ColorDrawable) color = background.color
+            invalidate()
+            return color
+        }
+
+    fun setDrawPaint(drawPaint: DrawPaint?) {
+        if (drawPaint != null) {
+            this.drawPaint = drawPaint
+        }
     }
 
-    public void clearCanvas () {
-        drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
-        paths.clear();
-        undo.clear();
-        invalidate();
+    fun setColor(color: Int) {
+        mColor = color
+        invalidate()
     }
 
-    public void drawShape (int id , @NonNull ShapeBuilder shapeManager) {
-        RectF mRectF = new RectF(shapeManager.mCropRect);
-        switch (id) {
-            case 0:
+    fun setBackColor(color: Int) {
+        setBackgroundColor(color)
+    }
+
+    fun setStroke(stroke: Int) {
+        mStroke = stroke.toFloat()
+        invalidate()
+    }
+
+    fun isEraserOn(): Boolean {
+        return !eraserOn
+    }
+
+    fun eraseCanvas(isEraserOn: Boolean) {
+        if (isEraserOn) {
+            eraserOn = true
+            mBackColor = mColor
+            mColor = backgroundColor
+        } else {
+            eraserOn = false
+            mColor = mBackColor
+        }
+        invalidate()
+    }
+
+    fun clearCanvas() {
+        drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+        paths.clear()
+        undo.clear()
+        invalidate()
+    }
+
+    fun drawShape(id: Int, shapeManager: ShapeBuilder) {
+        val mRectF = RectF(shapeManager.mCropRect)
+        when (id) {
+            0 -> {
                 specialPath.addCircle(
                         mRectF.centerX(),
                         mRectF.centerY(),
-                        shapeManager.radiusRect,
-                        Path.Direction.CW);
-                paths.add(specialPath);
-                colorsMap.put(specialPath, mColor);
-                strokeMap.put(specialPath, mStroke);
-                specialPath = new SpecialPath();
-                invalidate();
-                break;
-            case 1:
+                        shapeManager.radiusRect.toFloat(),
+                        Path.Direction.CW)
+                paths.add(specialPath)
+                colorsMap[specialPath] = mColor
+                strokeMap[specialPath] = mStroke
+                specialPath = SpecialPath()
+                invalidate()
+            }
+
+            1 -> {
                 specialPath.addRect(
                         mRectF,
-                        Path.Direction.CW);
-                paths.add(specialPath);
-                colorsMap.put(specialPath, mColor);
-                strokeMap.put(specialPath, mStroke);
-                specialPath = new SpecialPath();
-                invalidate();
-                break;
-            case 2:
+                        Path.Direction.CW)
+                paths.add(specialPath)
+                colorsMap[specialPath] = mColor
+                strokeMap[specialPath] = mStroke
+                specialPath = SpecialPath()
+                invalidate()
+            }
+
+            2 -> {
                 specialPath.addOval(
                         mRectF,
-                        Path.Direction.CW);
-                paths.add(specialPath);
-                colorsMap.put(specialPath, mColor);
-                strokeMap.put(specialPath, mStroke);
-                specialPath = new SpecialPath();
-                invalidate();
-                break;
+                        Path.Direction.CW)
+                paths.add(specialPath)
+                colorsMap[specialPath] = mColor
+                strokeMap[specialPath] = mStroke
+                specialPath = SpecialPath()
+                invalidate()
+            }
         }
     }
 
-    public void redoPath () {
-        if (undo.size()>0) {
-            paths.add(undo.remove(undo.size()-1));
-            undo.trimToSize();
+    fun redoPath() {
+        if (undo.size > 0) {
+            paths.add(undo.removeAt(undo.size - 1))
+            undo.trimToSize()
         } else {
-            Toast.makeText(getContext() , "EMPTY REDO" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "EMPTY REDO", Toast.LENGTH_SHORT).show()
         }
     }
 
-    public void undoPath () {
-        if (paths.size()>0){
-            undo.add(paths.remove(paths.size()-1));
-            paths.trimToSize();
+    fun undoPath() {
+        if (paths.size > 0) {
+            undo.add(paths.removeAt(paths.size - 1))
+            paths.trimToSize()
         } else {
-            Toast.makeText(getContext() , "EMPTY UNDO" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "EMPTY UNDO", Toast.LENGTH_SHORT).show()
         }
     }
 
-    public void invalidateView () {
-        this.invalidate();
+    fun invalidateView() {
+        this.invalidate()
     }
 
-    public PaintActivity(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        viewModel = new ViewModelProvider((MainActivity) getContext()).get(MainViewModel.class);
-        viewModel.paintActivityField.set(this);
-        init();
+    init {
+        viewModel.paintActivityField.set(this)
+        init()
     }
 
-    private void init() {
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        setBackgroundColor(Color.WHITE);
+    private fun init() {
+        isFocusable = true
+        isFocusableInTouchMode = true
+        setBackgroundColor(Color.WHITE)
 
         // undo/redo system
-        if (viewModel.getPaths() != null) {
-            paths = viewModel.getPaths();
-        } else {
-            paths.add(specialPath);
+        paths = viewModel.paths
+        paths = viewModel.undo
+        if (viewModel.drawPaint != null) {
+            drawPaint = viewModel.drawPaint!!
         }
-        if (viewModel.getUndo() != null) {
-            paths = viewModel.getUndo();
-        }
-
-        if (viewModel.getDrawPaint() != null) {
-            drawPaint = viewModel.getDrawPaint();
-        } else {
-            drawPaint = new DrawPaint();
-        }
-
-        if (viewModel.getDrawCanvas() != null) {
-            drawCanvas = viewModel.getDrawCanvas();
-        } else {
-            drawCanvas = new Canvas();
-        }
-
-        if (viewModel.getSpecialPath() != null) {
-            specialPath = viewModel.getSpecialPath();
-        } else {
-            specialPath = new SpecialPath();
-        }
-
-        if (viewModel.getColorsMap() != null) {
-            colorsMap = viewModel.getColorsMap();
-        } else {
-            colorsMap.put(specialPath, mColor);
-        }
-
-        if (viewModel.getStrokeMap() != null) {
-            strokeMap = viewModel.getStrokeMap();
-        } else {
-            strokeMap.put(specialPath, mStroke);
-        }
+        drawCanvas = viewModel.drawCanvas
+        specialPath = viewModel.specialPath
+        colorsMap = viewModel.colorsMap
+        strokeMap = viewModel.strokeMap
     }
 
-    @Nullable
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        viewModel.setDrawCanvas(drawCanvas);
-        viewModel.setDrawPaint(drawPaint);
-        viewModel.setSpecialPath(specialPath);
-        viewModel.setStrokeMap(strokeMap);
-        viewModel.setColorsMap(colorsMap);
-        viewModel.setPaths(paths);
-        viewModel.setUndo(undo);
-        return super.onSaveInstanceState();
+    override fun onSaveInstanceState(): Parcelable? {
+        viewModel.drawCanvas = drawCanvas
+        viewModel.drawPaint = drawPaint
+        viewModel.specialPath = specialPath
+        viewModel.strokeMap = strokeMap
+        viewModel.colorsMap = colorsMap
+        viewModel.paths = paths
+        viewModel.undo = undo
+        return super.onSaveInstanceState()
     }
 
-    @Override
-    protected void onDraw(@NonNull Canvas canvas) {
-        drawCanvas.drawColor(Color.TRANSPARENT , PorterDuff.Mode.CLEAR);
-        drawCanvas.drawPath(specialPath, drawPaint);
-        for (SpecialPath p : paths) {
-            Integer currCnt = colorsMap.get(p);
-            int temp1 = currCnt == null ? Color.BLACK : currCnt;
-            drawPaint.setColor(temp1);
-            Float currCount = strokeMap.get(p);
-            float currCount1 = currCount == null ? 30 : currCount;
-            drawPaint.setStrokeWidth(currCount1);
-            canvas.drawPath(p, drawPaint);
+    override fun onDraw(canvas: Canvas) {
+        drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+        drawCanvas.drawPath(specialPath, drawPaint)
+        for (p in paths) {
+            val currCnt = colorsMap[p]
+            val temp1 = currCnt ?: Color.BLACK
+            drawPaint.color = temp1
+            val currCount = strokeMap[p]
+            val currCount1: Float = (currCount ?: 30) as Float
+            drawPaint.strokeWidth = currCount1
+            canvas.drawPath(p, drawPaint)
         }
-        drawPaint.setColor(mColor);
-        canvas.drawBitmap(myCanvasBitmap, identityMatrix, null);
+        drawPaint.color = mColor
+        canvas.drawBitmap(myCanvasBitmap!!, identityMatrix, null)
     }
 
-    private void remove(int index){
-        paths.remove(index);
-        invalidate();
+    private fun remove(index: Int) {
+        paths.removeAt(index)
+        invalidate()
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        super .onTouchEvent(event);
-        float pointX = event.getX();
-        float pointY = event.getY();
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        super.onTouchEvent(event)
+        val pointX = event.x
+        val pointY = event.y
         if (eraserOn) {
-            for (int i = 0; i < paths.size(); i++) {
-                RectF r = new RectF();
-                Point pComp = new Point((int) (event.getX()) , (int) (event.getY()));
-                Path mPath = paths.get(i);
-                mPath.computeBounds(r , true);
-                if (r.contains(pComp.x , pComp.y)) {
-                    remove(i);
-                    break;
+            for (i in paths.indices) {
+                val r = RectF()
+                val pComp = Point(event.x.toInt(), event.y.toInt())
+                val mPath: Path = paths[i]
+                mPath.computeBounds(r, true)
+                if (r.contains(pComp.x.toFloat(), pComp.y.toFloat())) {
+                    remove(i)
+                    break
                 }
             }
-            return false;
+            return false
         } else {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    specialPath.moveTo(pointX , pointY);
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    specialPath.lineTo(pointX, pointY);
-                    break;
-                case MotionEvent.ACTION_UP:
-                    specialPath.lineTo(pointX, pointY);
-                    drawCanvas.drawPath(specialPath, drawPaint);
-                    paths.add(specialPath);
-                    colorsMap.put(specialPath, mColor);
-                    strokeMap.put(specialPath, mStroke);
-                    specialPath = new SpecialPath();
-                    break;
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> specialPath.moveTo(pointX, pointY)
+                MotionEvent.ACTION_MOVE -> specialPath.lineTo(pointX, pointY)
+                MotionEvent.ACTION_UP -> {
+                    specialPath.lineTo(pointX, pointY)
+                    drawCanvas.drawPath(specialPath, drawPaint)
+                    paths.add(specialPath)
+                    colorsMap[specialPath] = mColor
+                    strokeMap[specialPath] = mStroke
+                    specialPath = SpecialPath()
+                }
             }
         }
-        postInvalidate();
-        return true;
+        postInvalidate()
+        return true
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int w = MeasureSpec.getSize(widthMeasureSpec);
-        int h = MeasureSpec.getSize(heightMeasureSpec);
-        myCanvasBitmap = createBitmap(w, h, Config.ARGB_8888);
-        drawCanvas.setBitmap(myCanvasBitmap);
-        setMeasuredDimension(w, h);
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val w = MeasureSpec.getSize(widthMeasureSpec)
+        val h = MeasureSpec.getSize(heightMeasureSpec)
+        myCanvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        drawCanvas.setBitmap(myCanvasBitmap)
+        setMeasuredDimension(w, h)
+    }
+
+    companion object {
+        private var myCanvasBitmap: Bitmap? = null
     }
 }
